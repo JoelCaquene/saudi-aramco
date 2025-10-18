@@ -117,7 +117,7 @@ def deposito(request):
             deposit = form.save(commit=False)
             deposit.user = request.user
             deposit.save()
-            messages.success(request, 'Depósito enviado para aprovação. Aguarde de 5 a 15 minutos.')
+            messages.success(request, 'Depósito enviado para aprovação. Aguarde de 5 a 45 minutos.')
             return redirect('deposito')
     else:
         form = DepositForm()
