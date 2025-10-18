@@ -5,7 +5,7 @@
 
 {% block content %}
 <div class="page-header">
-    <h1>Minha Renda</h1>
+    <h1>CONTABILIDADE</h1>
 </div>
 
 <div class="income-container">
@@ -16,15 +16,15 @@
             <span>{{ active_level.level.name|default:"Nenhum" }}</span>
         </div>
         <div class="summary-item">
-            <p><strong>Depósito Aprovado:</strong></p>
+            <p><strong>Depósito Activo:</strong></p>
             <span>$ {{ approved_deposit_total|default:"0.00" }}</span>
         </div>
         <div class="summary-item highlight">
-            <p><strong>Saldo Disponível:</strong></p>
+            <p><strong>Saldo Activo:</strong></p>
             <span>$ {{ user.available_balance|default:"0.00" }}</span>
         </div>
         <div class="summary-item">
-            <p><strong>Saldo de Subsídio:</strong></p>
+            <p><strong>Ganho de Subsídio:</strong></p>
             <span>$ {{ user.subsidy_balance|default:"0.00" }}</span>
         </div>
     </div>
