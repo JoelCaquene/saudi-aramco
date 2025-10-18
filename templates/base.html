@@ -13,24 +13,6 @@
         {% block content %}
         {% endblock %}
 
-        <nav class="bottom-menu">
-            <a href="{% url 'menu' %}" class="bottom-button {% if request.resolver_match.url_name == 'menu' %}active{% endif %}">
-                <i class="fas fa-home"></i>
-                <span>Menu</span>
-            </a>
-            <a href="{% url 'equipa' %}" class="bottom-button {% if request.resolver_match.url_name == 'equipa' %}active{% endif %}">
-                <i class="fas fa-users"></i>
-                <span>Equipa</span>
-            </a>
-            <a href="{% url 'sobre' %}" class="bottom-button {% if request.resolver_match.url_name == 'sobre' %}active{% endif %}">
-                <i class="fas fa-info-circle"></i>
-                <span>Sobre</span>
-            </a>
-            <a href="{% url 'perfil' %}" class="bottom-button {% if request.resolver_match.url_name == 'perfil' %}active{% endif %}">
-                <i class="fas fa-user"></i>
-                <span>Perfil</span>
-            </a>
-        </nav>
     </div>
 </body>
 </html>
