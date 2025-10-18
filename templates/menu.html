@@ -1,0 +1,359 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Menu{% endblock %}
+
+{% block content %}
+
+<div id="welcomePopup" class="popup-overlay">
+    <div class="popup-content">
+        <div class="popup-header">
+            <img src="{% static 'images/popup_welcome_image.jpg' %}" alt="Bem-vindo à Saudi Aramco" class="popup-image">
+        </div>
+        <div class="popup-body">
+            <h2 class="popup-title">Aviso de Boas-Vindas - Saudi Aramco</h2>
+            <p class="popup-text">
+                **Saudi Aramco**, é uma das maiores empresas integradas de energia e produtos químicos do mundo, com sede em Dhahran, Arábia Saudita.
+                Entramos em Angola, apartir do dia **27 de Outubro, de 2025**. Os nossos contratos são longo prazo.
+                Trabalhamos de **segunda a sabádo, das 08:30 Min até 20:00h**.
+            </p>
+            <p class="popup-text commitment">
+                Estamos comprometido em oferecer um serviço de qualidade e digno.
+            </p>
+            <p class="popup-text disclaimer">
+                Não, aceitamos divulgação de link da plataforma de modo descriminado.
+                Recrutamento, é feito a base da legalidade, e dos principios eticos e comerciais.
+            </p>
+            <button id="closePopup" class="popup-close-button">Entendido e Continuar</button>
+        </div>
+    </div>
+</div>
+<header class="menu-header">
+    <h1 class="platform-name">Saudi Aramco</h1>
+    {% if whatsapp_link %}
+        <a href="{{ whatsapp_link }}" class="support-button">
+            <i class="fa-brands fa-whatsapp"></i> 
+            <span>Apoio</span>
+        </a>
+    {% endif %}
+</header>
+
+<div class="image-gallery">
+    <div class="image-slider">
+        <img src="{% static 'images/placeholder_1.jpg' %}" alt="Imagem da Plataforma 1" class="active">
+        <img src="{% static 'images/placeholder_2.jpg' %}" alt="Imagem da Plataforma 2">
+    </div>
+</div>
+
+<div class="buttons-grid">
+    <a href="{% url 'deposito' %}" class="grid-item">
+        <div class="icon-container">
+            <img src="{% static 'icons/deposito.png' %}" alt="Depósito">
+        </div>
+        <span>Depósito</span>
+    </a>
+    <a href="{% url 'saque' %}" class="grid-item">
+        <div class="icon-container">
+            <img src="{% static 'icons/saque.png' %}" alt="Saque">
+        </div>
+        <span>Saque</span>
+    </a>
+    <a href="{% url 'tarefa' %}" class="grid-item">
+        <div class="icon-container">
+            <img src="{% static 'icons/tarefa.png' %}" alt="Tarefa">
+        </div>
+        <span>Tarefa</span>
+    </a>
+    <a href="{% url 'renda' %}" class="grid-item">
+        <div class="icon-container">
+            <img src="{% static 'icons/renda.png' %}" alt="Renda">
+        </div>
+        <span>Renda</span>
+    </a>
+    <a href="{% url 'nivel' %}" class="grid-item">
+        <div class="icon-container">
+            <img src="{% static 'icons/nivel.png' %}" alt="Nível">
+        </div>
+        <span>Nível</span>
+    </a>
+    <a href="{% url 'equipa' %}" class="grid-item">
+        <div class="icon-container">
+            <img src="{% static 'icons/equipa.png' %}" alt="Equipa"> 
+        </div>
+        <span>Equipa</span>
+    </a>
+    <a href="{% url 'roleta' %}" class="grid-item">
+        <div class="icon-container">
+            <img src="{% static 'icons/roleta.png' %}" alt="Roleta da Sorte">
+        </div>
+        <span>Roleta da Sorte</span>
+    </a>
+    <a href="{% url 'sobre' %}" class="grid-item">
+        <div class="icon-container">
+            <img src="{% static 'icons/sobre.png' %}" alt="Sobre">
+        </div>
+        <span>Sobre</span>
+    </a>
+</div>
+
+<div class="vip-section">
+    {% if levels %}
+        <h2>Níveis de Investimento</h2>
+        <div class="vip-grid">
+            {% for level in levels %}
+                <div class="vip-card">
+                    <img src="{{ level.image.url }}" alt="{{ level.name }}">
+                    <div class="vip-info">
+                        <h3>{{ level.name }}</h3>
+                        <p>Depósito: $ {{ level.deposit_value }}</p>
+                        <p>Ganho Diário: $ {{ level.daily_gain }}</p>
+                        <p>Ganho Mensal: $ {{ level.monthly_gain }}</p>
+                        <p>Ciclo: {{ level.cycle }} dias</p>
+                    </div>
+                    <a href="{% url 'nivel' %}" class="buy-button">Comprar</a>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Nenhum nível de investimento disponível no momento.</p>
+    {% endif %}
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Lógica do Slider
+        const images = document.querySelectorAll('.image-slider img');
+        let currentImage = 0;
+
+        if (images.length > 1) {
+            setInterval(() => {
+                images[currentImage].classList.remove('active');
+                currentImage = (currentImage + 1) % images.length;
+                images[currentImage].classList.add('active');
+            }, 3000);
+        }
+
+        // Lógica do Pop-up de Boas-Vindas
+        const popup = document.getElementById('welcomePopup');
+        const closeButton = document.getElementById('closePopup');
+
+        // Exibe o pop-up a cada carregamento da página.
+        popup.style.display = 'flex'; 
+
+        // Adiciona evento para fechar
+        closeButton.addEventListener('click', () => {
+            popup.style.display = 'none';
+        });
+
+        // Opcional: fechar ao clicar fora do pop-up
+        window.addEventListener('click', (event) => {
+            if (event.target === popup) {
+                popup.style.display = 'none';
+            }
+        });
+    });
+</script>
+
+<style>
+    /* Estilos do Pop-up de Boas-Vindas */
+    .popup-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        display: none; /* Inicia oculto, será exibido via JS */
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    .popup-content {
+        background-color: #0d1a2f; /* Fundo escuro similar ao tema */
+        color: #fff;
+        width: 90%; /* Responsivo para ecrãs pequenos */
+        max-width: 400px; /* Limite para ecrãs maiores */
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.9);
+        overflow: hidden;
+        border: 2px solid #87CEEB; /* Borda azul clara */
+    }
+
+    .popup-header {
+        position: relative;
+        height: 100px;
+        background-color: #1a1a4d;
+    }
+
+    .popup-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        /* Certifique-se de ter a imagem em 'static/images/popup_welcome_image.jpg' */
+    }
+
+    .popup-body {
+        padding: 15px;
+        text-align: center;
+    }
+
+    .popup-title {
+        font-size: 1.1rem;
+        color: #4CAF50; /* Cor verde para destaque */
+        margin-top: 0;
+        margin-bottom: 10px;
+    }
+
+    .popup-text {
+        font-size: 0.85rem;
+        margin-bottom: 10px;
+        line-height: 1.4;
+        text-align: left;
+    }
+
+    .popup-text.commitment {
+        color: #87CEEB; /* Azul claro para compromisso */
+        font-weight: bold;
+    }
+    .popup-text.disclaimer {
+        font-size: 0.75rem;
+        color: #ccc;
+    }
+
+    .popup-close-button {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin-top: 15px;
+        cursor: pointer;
+        border-radius: 5px;
+        width: 100%;
+        transition: background-color 0.3s;
+    }
+
+    .popup-close-button:hover {
+        background-color: #45a049;
+    }
+
+    /* Estilos para o Grid de Botões (MENU) - Sem os quadrados de cores diferentes */
+    .buttons-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        padding: 10px;
+        margin: 15px 0;
+        background-color: transparent;
+    }
+
+    .grid-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        text-decoration: none;
+        color: #fff;
+        padding: 5px;
+        border-radius: 8px;
+        transition: background-color 0.3s, transform 0.1s;
+        
+        /* Estilos para parecer um botão limpo */
+        background-color: rgba(255, 255, 255, 0.05);
+        border: none;
+    }
+
+    .grid-item:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        transform: scale(1.05);
+    }
+
+    .icon-container img {
+        width: 35px;
+        height: 35px;
+        margin-bottom: 5px;
+        filter: drop-shadow(0 0 3px rgba(0, 255, 255, 0.8));
+    }
+
+    .grid-item span {
+        font-size: 0.75rem;
+        font-weight: 500;
+        word-break: break-word;
+    }
+
+
+    /* Manutenção dos estilos de VIP e outros */
+    .vip-section {
+        text-align: center;
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #1a1a4d;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+    }
+    .vip-section h2 {
+        font-size: 1.2rem;
+        color: #87CEEB;
+        margin-bottom: 15px;
+    }
+    .vip-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        padding: 0 10px;
+    }
+    .vip-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background-color: #0d1a2f;
+        border: 2px solid #4CAF50;
+        border-radius: 10px;
+        padding: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        text-align: center;
+    }
+    .vip-card img {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 10px;
+    }
+    .vip-info {
+        text-align: center;
+    }
+    .vip-info h3 {
+        margin: 0;
+        font-size: 1.2rem;
+        color: #fff;
+    }
+    .vip-info p {
+        margin: 5px 0;
+        font-size: 0.8rem;
+        color: #ccc;
+    }
+    .buy-button {
+        display: inline-block;
+        background-color: #4CAF50;
+        color: #fff;
+        padding: 8px 16px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: bold;
+        margin-top: 10px;
+        transition: background-color 0.3s;
+    }
+    .buy-button:hover {
+        background-color: #45a049;
+    }
+</style>
+{% endblock %}

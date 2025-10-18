@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Saque{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Saque</h1>
+</div>
+
+<div class="saque-container">
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <div class="info-box">
+        <h3>Informações de Saque</h3>
+        <p>Taxa de saque: 10%</p>
+        <p>Saque mínimo: 2500 $</p>
+        <p>Horário de saque: 08:30h até 17:00h</p>
+    </div>
+
+    <form method="post" class="saque-form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="{{ form.amount.id_for_label }}">Valor a Sacar:</label>
+            {{ form.amount }}
+        </div>
+        <button type="submit" class="saque-button">Sacar</button>
+    </form>
+
+    <div class="withdrawal-history">
+        <h3>Histórico de Saques</h3>
+        {% if withdrawal_records %}
+            {% for record in withdrawal_records %}
+            <div class="withdrawal-item">
+                <div class="withdrawal-details">
+                    <span class="date">{{ record.created_at|date:"d/m/Y H:i" }}</span>
+                    <span class="amount">-{{ record.amount|default:"0.00" }} $</span>
+                </div>
+                <span class="status-{{ record.status|lower }}">
+                    {% if record.status == 'Aprovado' %}
+                        Saque Aprovado
+                    {% elif record.status == 'Pending' or record.status == 'Pendente' %}
+                        Saque Pendente
+                    {% else %}
+                        {{ record.status }}
+                    {% endif %}
+                </span>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>Nenhum histórico de saque encontrado.</p>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .page-header {
+        text-align: center;
+        padding: 20px 0;
+        background-color: #00004d;
+        border-bottom: 2px solid #4CAF50;
+        margin-bottom: 20px;
+    }
+    .page-header h1 {
+        color: #4CAF50;
+        font-family: 'Arial', sans-serif;
+    }
+    .saque-container {
+        background-color: #0d1a2f;
+        padding: 25px;
+        border-radius: 15px;
+        margin: 20px auto;
+        max-width: 450px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        border: 1px solid #1a3250;
+    }
+    .saque-container h3 {
+        color: #4CAF50;
+        font-size: 1.4rem;
+        border-bottom: 2px solid #1a3250;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+        font-family: 'Arial', sans-serif;
+    }
+    .info-box {
+        background-color: #1a3250;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        color: #e0e0e0;
+    }
+    .info-box h3 {
+        color: #fff;
+        border-bottom: 1px solid #4CAF50;
+        margin-bottom: 10px;
+    }
+    .info-box p {
+        margin: 5px 0;
+    }
+    .saque-form {
+        margin-bottom: 20px;
+    }
+    .form-group label {
+        display: block;
+        color: #e0e0e0;
+        margin-bottom: 8px;
+    }
+    .form-group input {
+        width: 100%;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #1a3250;
+        background-color: #0d1a2f;
+        color: #fff;
+        font-size: 1rem;
+        box-sizing: border-box;
+    }
+    .saque-button {
+        width: 100%;
+        padding: 15px 20px;
+        background-color: #4CAF50;
+        color: #fff;
+        text-decoration: none;
+        border: none;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+    .saque-button:hover {
+        background-color: #388e3c;
+    }
+    .withdrawal-history {
+        margin-top: 30px;
+    }
+    .withdrawal-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #1a3250;
+    }
+    .withdrawal-item:last-of-type {
+        border-bottom: none;
+    }
+    .withdrawal-details {
+        display: flex;
+        flex-direction: column;
+    }
+    .withdrawal-details .date {
+        color: #888;
+        font-size: 0.9rem;
+    }
+    .withdrawal-details .amount {
+        font-weight: bold;
+        color: #e0e0e0;
+    }
+    .status-aprovado, .status-approved {
+        font-weight: bold;
+        color: #4CAF50; /* Cor VERDE para Aprovado */
+    }
+    .status-pendente, .status-pending {
+        font-weight: bold;
+        color: #FFC107; /* Cor Amarela para Pendente */
+    }
+    .messages {
+        list-style-type: none;
+        padding: 0;
+        margin-bottom: 20px;
+    }
+    .messages li {
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        color: #fff;
+    }
+    .messages .success {
+        background-color: #4CAF50;
+    }
+    .messages .error {
+        background-color: #f44336;
+    }
+</style>
+{% endblock %}

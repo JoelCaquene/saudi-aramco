@@ -1,0 +1,329 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Perfil{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <h1>Perfil</h1>
+    </div>
+
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <div class="profile-container">
+        <div class="profile-tabs">
+            <button class="tab-button active" onclick="openTab(event, 'info-tab')">Informações</button>
+            <button class="tab-button" onclick="openTab(event, 'bank-tab')">Dados Bancários</button>
+        </div>
+
+        <div id="info-tab" class="tab-content active">
+            <div class="info-item">
+                <span class="label">Número de Telefone:</span>
+                <span class="value">{{ user.phone_number }}</span>
+            </div>
+            <div class="info-item">
+                <span class="label">Saldo Disponível:</span>
+                <span class="value">$ {{ user.available_balance }}</span>
+            </div>
+            <div class="info-item">
+                <span class="label">Total Sacado:</span>
+                <span class="value">$ {{ user.total_withdrawn }}</span>
+            </div>
+            <div class="info-item">
+                <span class="label">Nível Ativo:</span>
+                <span class="value">Nível {{ user.active_level.name }}</span>
+            </div>
+        </div>
+
+        <div id="bank-tab" class="tab-content">
+            <form method="post" class="form-style">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="{{ form.account_holder_name.id_for_label }}">Nome Completo:</label>
+                    {{ form.account_holder_name }}
+                    {% if form.account_holder_name.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.account_holder_name.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.bank_name.id_for_label }}">Nome do Banco:</label>
+                    {{ form.bank_name }}
+                    {% if form.bank_name.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.bank_name.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.IBAN.id_for_label }}">IBAN:</label>
+                    {{ form.IBAN }}
+                    {% if form.IBAN.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.IBAN.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                <button type="submit" name="update_bank" class="submit-button">Salvar Dados Bancários</button>
+            </form>
+            
+            <form method="post" class="form-style" style="margin-top: 20px;">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="{{ password_form.old_password.id_for_label }}">Senha Antiga:</label>
+                    {{ password_form.old_password }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ password_form.new_password1.id_for_label }}">Nova Senha:</label>
+                    {{ password_form.new_password1 }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ password_form.new_password2.id_for_label }}">Confirme a Nova Senha:</label>
+                    {{ password_form.new_password2 }}
+                </div>
+                <button type="submit" name="change_password" class="submit-button change-password-button">Alterar Senha</button>
+            </form>
+        </div>
+        <div class="info-item logout-link-container">
+            <a href="{% url 'logout' %}" class="profile-action-button logout-button">Sair</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .page-container {
+        padding: 10px;
+    }
+    .page-header h1 {
+        color: #4CAF50;
+        text-align: center;
+        margin-bottom: 20px;
+        background-color: #00004d;
+        padding: 15px;
+        border-radius: 10px;
+        font-family: 'Arial', sans-serif;
+    }
+    .profile-container {
+        background-color: #0d1a2f; /* Azul escuro mais elegante */
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px auto;
+        max-width: 400px;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.7); /* Sombra mais destacada */
+        border: 1px solid #1a3250;
+    }
+    .profile-tabs {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #1a3250;
+    }
+    .tab-button {
+        background: none;
+        border: none;
+        padding: 10px 20px;
+        color: #87CEEB;
+        font-size: 1rem;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        transition: all 0.3s ease;
+        font-family: 'Arial', sans-serif;
+        font-weight: bold;
+    }
+    .tab-button:hover {
+        color: #fff;
+    }
+    .tab-button.active {
+        border-bottom: 2px solid #4CAF50;
+        color: #fff;
+    }
+    .tab-content {
+        display: none;
+        padding-top: 10px;
+    }
+    .tab-content.active {
+        display: block;
+    }
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid #1a3250;
+    }
+    .info-item:last-of-type {
+        border-bottom: none;
+    }
+    .label {
+        font-weight: bold;
+        color: #87CEEB;
+        font-family: 'Arial', sans-serif;
+    }
+    .value {
+        color: #fff;
+        font-family: 'Arial', sans-serif;
+    }
+    .form-style .form-group {
+        margin-bottom: 15px;
+    }
+    .form-style label {
+        display: block;
+        margin-bottom: 8px;
+        color: #87CEEB;
+        font-family: 'Arial', sans-serif;
+    }
+    .form-style input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #1a3250;
+        background-color: #00004d;
+        color: #fff;
+        border-radius: 5px;
+        box-sizing: border-box;
+        font-size: 1rem;
+        transition: border-color 0.3s;
+    }
+    .form-style input:focus {
+        border-color: #4CAF50;
+        outline: none;
+    }
+    .form-style input::placeholder {
+        color: #87CEEB;
+        opacity: 0.7;
+    }
+    .submit-button {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        text-align: center;
+        margin-top: 15px;
+        text-decoration: none;
+        color: #fff;
+        border-radius: 5px;
+        transition: background-color 0.3s, transform 0.2s;
+        cursor: pointer;
+        border: none;
+        font-size: 1rem;
+        font-weight: bold;
+        background-color: #4CAF50;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+    .submit-button:hover {
+        background-color: #388e3c;
+        transform: translateY(-2px);
+    }
+    .change-password-button {
+        background-color: #007bff;
+    }
+    .change-password-button:hover {
+        background-color: #0056b3;
+    }
+    .logout-link-container {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #1a3250;
+        text-align: center;
+    }
+    .logout-button {
+        background-color: #dc3545;
+        border: none;
+        box-shadow: 0 0 10px rgba(220, 53, 69, 0.5); /* Brilho inicial */
+        transition: box-shadow 0.4s ease, transform 0.3s ease;
+        padding: 12px 20px;
+        font-weight: bold;
+        text-decoration: none;
+        color: #fff;
+        border-radius: 5px;
+    }
+    .logout-button:hover {
+        background-color: #c82333;
+        box-shadow: 0 0 25px rgba(220, 53, 69, 1); /* Brilho maior no hover */
+        transform: translateY(-3px); /* Pequeno efeito de elevação */
+    }
+    .messages {
+        list-style-type: none;
+        padding: 0;
+        margin: 20px auto;
+        max-width: 400px;
+    }
+    .messages .success {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        font-weight: bold;
+    }
+    .messages .error {
+        background-color: #ff4444;
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        font-weight: bold;
+    }
+    .errorlist {
+        color: #ff4444;
+        list-style: none;
+        padding: 0;
+        margin-top: 5px;
+        font-size: 0.9rem;
+    }
+</style>
+
+<script>
+    function openTab(evt, tabName) {
+        var i, tabContent, tabButtons;
+        tabContent = document.getElementsByClassName("tab-content");
+        for (i = 0; i < tabContent.length; i++) {
+            tabContent[i].style.display = "none";
+        }
+        tabButtons = document.getElementsByClassName("tab-button");
+        for (i = 0; i < tabButtons.length; i++) {
+            tabButtons[i].className = tabButtons[i].className.replace(" active", "");
+        }
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.className += " active";
+        localStorage.setItem('activeTab', tabName);
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        let activeTab = urlParams.get('tab') || localStorage.getItem('activeTab') || 'info-tab';
+
+        const hasFormErrors = document.querySelector('.errorlist');
+        if (hasFormErrors) {
+            activeTab = 'bank-tab';
+        }
+
+        const tabToOpen = document.getElementById(activeTab);
+        if (tabToOpen) {
+            document.getElementById('info-tab').classList.remove('active');
+            document.getElementById('bank-tab').classList.remove('active');
+            tabToOpen.classList.add('active');
+            
+            const activeTabButton = document.querySelector(`.tab-button[onclick*="'${activeTab}'"]`);
+            const allTabButtons = document.getElementsByClassName("tab-button");
+            for (let i = 0; i < allTabButtons.length; i++) {
+                allTabButtons[i].classList.remove('active');
+            }
+            if (activeTabButton) {
+                activeTabButton.classList.add('active');
+            }
+        }
+    });
+</script>
+{% endblock %}

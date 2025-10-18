@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Nível{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Níveis de Investimento</h1>
+</div>
+<div class="level-list">
+    {% for level in levels %}
+    <div class="level-item">
+        <img src="{% if level.image %}{{ level.image.url }}{% else %}{% static 'path/to/default/image.png' %}{% endif %}" alt="{{ level.name }}">
+        <div class="level-info">
+            <h3>{{ level.name }}</h3>
+            <p>Depósito: $ {{ level.deposit_value }}</p>
+            <p>Ganho Diário: $ {{ level.daily_gain }}</p>
+            <p>Ganho Mensal: $ {{ level.monthly_gain }}</p>
+            <p>Ciclo: {{ level.cycle_days }} dias</p>
+        </div>
+        {% if level.id in user_levels %}
+            <span class="active-level">Nível Ativo</span>
+        {% else %}
+            <form method="post" action="{% url 'nivel' %}">
+                {% csrf_token %}
+                <input type="hidden" name="level_id" value="{{ level.id }}">
+                <button type="submit" class="buy-button">Comprar</button>
+            </form>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+    .page-header {
+        text-align: center;
+        padding: 20px 0;
+        background-color: #00004d;
+        border-bottom: 2px solid #4CAF50;
+        margin-bottom: 20px;
+    }
+    .page-header h1 {
+        color: #4CAF50;
+    }
+    .level-list {
+        display: grid;
+        gap: 20px;
+        padding: 20px;
+    }
+    .level-item {
+        background-color: #00004d;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+        text-align: center;
+    }
+    .level-item img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+    .level-info h3 {
+        color: #87CEEB;
+        margin-bottom: 5px;
+    }
+    .level-info p {
+        margin: 0;
+        color: #fff;
+    }
+    .buy-button, .active-level {
+        width: 100%;
+        padding: 10px;
+        margin-top: 15px;
+        border-radius: 5px;
+        font-size: 1rem;
+        font-weight: bold;
+        color: #fff;
+        cursor: pointer;
+        border: none;
+    }
+    .buy-button {
+        background-color: #4CAF50;
+        transition: background-color 0.3s;
+    }
+    .buy-button:hover {
+        background-color: #388e3c;
+    }
+    .active-level {
+        background-color: #87CEEB;
+    }
+</style>
+{% endblock %}

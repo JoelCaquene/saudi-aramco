@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Roleta da Sorte{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Roleta da Sorte</h1>
+</div>
+<div class="roulette-container">
+    <p>Gire a roleta e ganhe prémios!</p>
+    <p>Giros disponíveis: <span id="roulette-spins">{{ roulette_spins }}</span></p>
+    
+    {% csrf_token %}
+
+    <div class="roulette-wheel-wrapper">
+        <img id="roulette-wheel" src="{% static 'images/roulette_wheel.png' %}" alt="Roleta da Sorte" class="roulette-wheel">
+    </div>
+
+    <button type="button" class="spin-button" id="spin-button" {% if not roulette_spins or roulette_spins <= 0 %}disabled{% endif %}>Girar</button>
+    
+    <div class="roulette-result" id="roulette-result"></div>
+</div>
+
+<style>
+    .page-header {
+        text-align: center;
+        padding: 20px 0;
+        background-color: #00004d;
+        border-bottom: 2px solid #4CAF50;
+        margin-bottom: 20px;
+    }
+    .page-header h1 {
+        color: #4CAF50;
+    }
+    .roulette-container {
+        background-color: #00004d;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px auto;
+        max-width: 400px;
+        text-align: center;
+        color: #fff;
+    }
+    .roulette-wheel-wrapper {
+        position: relative;
+        width: 100%;
+        max-width: 300px;
+        margin: 20px auto;
+    }
+    .roulette-wheel {
+        width: 100%;
+        display: block;
+        transition: transform 5s cubic-bezier(0.1, 0.9, 0.4, 1.1);
+    }
+    .spin-button {
+        padding: 15px 30px;
+        background-color: #4CAF50;
+        color: #fff;
+        border: none;
+        border-radius: 50px;
+        font-size: 1.2rem;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s;
+    }
+    .spin-button:disabled {
+        background-color: #555;
+        cursor: not-allowed;
+    }
+    .roulette-result {
+        margin-top: 20px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #FFD700;
+        min-height: 25px;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const spinButton = document.getElementById('spin-button');
+        const rouletteWheel = document.getElementById('roulette-wheel');
+        const resultDisplay = document.getElementById('roulette-result');
+        const spinsDisplay = document.getElementById('roulette-spins');
+        // Agora o JavaScript consegue encontrar o input com o token CSRF
+        const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+
+        // Verifica se os elementos foram encontrados antes de adicionar o event listener
+        if (spinButton && rouletteWheel) {
+            spinButton.addEventListener('click', function() {
+                // Desativa o botão para evitar múltiplos giros
+                spinButton.disabled = true;
+                resultDisplay.textContent = 'Girando...';
+
+                fetch('{% url "spin_roulette" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify({}) // Envia um corpo vazio
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const prize = data.prize;
+                        const degrees = Math.floor(Math.random() * 360) + 360 * 5;
+                        
+                        rouletteWheel.style.transform = `rotate(${degrees}deg)`;
+
+                        setTimeout(() => {
+                            resultDisplay.textContent = data.message;
+                            spinsDisplay.textContent = parseInt(spinsDisplay.textContent) - 1;
+                            spinButton.disabled = false;
+                        }, 5000);
+                    } else {
+                        resultDisplay.textContent = data.message;
+                        spinButton.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    resultDisplay.textContent = 'Ocorreu um erro ao girar a roleta. Tente novamente.';
+                    spinButton.disabled = false;
+                });
+            });
+        }
+    });
+</script>
+{% endblock %}

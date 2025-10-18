@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Depósito{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Depósito</h1>
+</div>
+
+{% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+<div class="page-content">
+    <div class="info-box">
+        <p>HORARIO DE DEPOSITO DAS 08:00 ATÉ 20:00 DE SEGUNDA A SABÁDO. DURAÇÃO DE APROVAÇÃO 5 A 10 MINUTOS.</p>
+    </div>
+
+    {% if platform_bank_details %}
+        <div class="bank-selection">
+            <h3>Selecione um Banco para o Depósito</h3>
+            <div class="bank-buttons">
+                {% for bank_detail in platform_bank_details %}
+                    <button class="bank-button" data-bank-id="{{ forloop.counter }}">
+                        {{ bank_detail.bank_name }}
+                    </button>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% for bank_detail in platform_bank_details %}
+            <div id="bank-details-{{ forloop.counter }}" class="bank-details-card" style="display: none;">
+                <p><strong>Nome do Titular:</strong> {{ bank_detail.account_holder_name }}</p>
+                <div class="IBAN-group">
+                    <p><strong>IBAN:</strong> <span id="IBAN-{{ forloop.counter }}">{{ bank_detail.IBAN }}</span></p>
+                    <button class="copy-button" data-IBAN="IBAN-{{ forloop.counter }}">Copiar IBAN</button>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="info-box">
+            <p>Nenhum detalhe bancário da plataforma disponível no momento.</p>
+        </div>
+    {% endif %}
+
+    <div class="deposit-form-section">
+        <h3>Preencha os dados do seu depósito</h3>
+        <form method="post" enctype="multipart/form-data" class="form-style">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="{{ form.amount.id_for_label }}">Valor do Depósito:</label>
+                {{ form.amount }}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.proof_of_payment.id_for_label }}">Comprovativo de Pagamento:</label>
+                {{ form.proof_of_payment }}
+            </div>
+            <button type="submit" class="submit-button">Enviar Comprovativo</button>
+        </form>
+    </div>
+</div>
+
+<style>
+    .page-header, .page-content {
+        background-color: #00004d;
+        padding: 20px;
+        margin: 20px;
+        border-radius: 10px;
+    }
+    .page-header h1 {
+        color: #4CAF50;
+        text-align: center;
+    }
+    .info-box {
+        background-color: #1a1a4d;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    .info-box p {
+        line-height: 1.5;
+        color: #fff;
+    }
+    .bank-selection {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .bank-selection h3 {
+        color: #87CEEB;
+        margin-bottom: 10px;
+    }
+    .bank-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+    }
+    .bank-button {
+        background-color: #0d1a2f;
+        color: #fff;
+        border: 2px solid #4CAF50;
+        border-radius: 8px;
+        padding: 12px 20px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s;
+    }
+    .bank-button:hover {
+        background-color: #1a1a4d;
+        transform: scale(1.05);
+    }
+    .bank-button.active {
+        background-color: #4CAF50;
+        color: #000;
+        font-weight: bold;
+    }
+    .bank-details-card {
+        background-color: #1a1a4d;
+        border: 2px solid #87CEEB;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    .IBAN-group {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 10px;
+    }
+    .IBAN-group p {
+        margin: 0;
+        color: #ccc;
+    }
+    .copy-button {
+        padding: 5px 10px;
+        background-color: #87CEEB;
+        color: #000;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+    .deposit-form-section {
+        background-color: #1a1a4d;
+        padding: 20px;
+        border-radius: 10px;
+    }
+    .deposit-form-section h3 {
+        color: #fff;
+        margin-bottom: 15px;
+    }
+    .form-style .form-group {
+        margin-bottom: 15px;
+    }
+    .form-style label {
+        display: block;
+        margin-bottom: 5px;
+        color: #87CEEB;
+    }
+    .form-style input[type="number"], .form-style input[type="file"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #333;
+        background-color: #0d1a2f;
+        color: #fff;
+        border-radius: 5px;
+        box-sizing: border-box;
+    }
+    .submit-button {
+        width: 100%;
+        padding: 12px;
+        background-color: #4CAF50;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    .submit-button:hover {
+        background-color: #388e3c;
+    }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const bankButtons = document.querySelectorAll('.bank-button');
+        const bankDetailsCards = document.querySelectorAll('.bank-details-card');
+
+        bankButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const bankId = button.dataset.bankId;
+
+                bankButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+
+                bankDetailsCards.forEach(card => card.style.display = 'none');
+
+                const selectedBankDetails = document.getElementById(`bank-details-${bankId}`);
+                if (selectedBankDetails) {
+                    selectedBankDetails.style.display = 'block';
+                }
+            });
+        });
+
+        document.querySelectorAll('.copy-button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const IBANId = e.target.dataset.IBAN;
+                const IBANText = document.getElementById(IBANId).innerText;
+                navigator.clipboard.writeText(IBANText)
+                    .then(() => {
+                        e.target.innerText = 'Copiado!';
+                        setTimeout(() => {
+                            e.target.innerText = 'Copiar IBAN';
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        console.error('Falha ao copiar: ', err);
+                    });
+            });
+        });
+    });
+</script>
+{% endblock %}

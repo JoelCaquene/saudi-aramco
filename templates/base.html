@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}saudi_aramco{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/menu.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="menu-container">
+        {% block content %}
+        {% endblock %}
+
+        <nav class="bottom-menu">
+            <a href="{% url 'menu' %}" class="bottom-button {% if request.resolver_match.url_name == 'menu' %}active{% endif %}">
+                <i class="fas fa-home"></i>
+                <span>Menu</span>
+            </a>
+            <a href="{% url 'equipa' %}" class="bottom-button {% if request.resolver_match.url_name == 'equipa' %}active{% endif %}">
+                <i class="fas fa-users"></i>
+                <span>Equipa</span>
+            </a>
+            <a href="{% url 'sobre' %}" class="bottom-button {% if request.resolver_match.url_name == 'sobre' %}active{% endif %}">
+                <i class="fas fa-info-circle"></i>
+                <span>Sobre</span>
+            </a>
+            <a href="{% url 'perfil' %}" class="bottom-button {% if request.resolver_match.url_name == 'perfil' %}active{% endif %}">
+                <i class="fas fa-user"></i>
+                <span>Perfil</span>
+            </a>
+        </nav>
+    </div>
+</body>
+</html>
