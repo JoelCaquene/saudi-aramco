@@ -6,7 +6,11 @@
 {% block content %}
 <div class="page-container">
     <div class="page-header">
-        <h1>Perfil</h1>
+        <a href="{% url 'menu' %}" class="back-button">
+            <i class="fas fa-arrow-left"></i> 
+            <span>Voltar ao Menu</span>
+        </a>
+        <h1>Meu Perfil</h1>
     </div>
 
     {% if messages %}
@@ -16,6 +20,27 @@
             {% endfor %}
         </ul>
     {% endif %}
+    
+    {# NOVO BLOCO: Botões de Acesso Rápido - Horizontal e Personalizado #}
+    <div class="quick-access-buttons">
+        <a href="{% url 'renda' %}" class="access-item">
+            <img src="{% static 'icons/renda.png' %}" alt="Renda">
+            <span>Renda</span>
+        </a>
+        <a href="{% url 'nivel' %}" class="access-item">
+            <img src="{% static 'icons/nivel.png' %}" alt="Nível">
+            <span>Nível</span>
+        </a>
+        <a href="{% url 'equipa' %}" class="access-item">
+            <img src="{% static 'icons/equipa.png' %}" alt="Equipa">
+            <span>Equipa</span>
+        </a>
+        <a href="{% url 'roleta' %}" class="access-item">
+            <img src="{% static 'icons/roleta.png' %}" alt="Roleta">
+            <span>Roleta</span>
+        </a>
+    </div>
+    {# FIM DO NOVO BLOCO #}
 
     <div class="profile-container">
         <div class="profile-tabs">
@@ -105,25 +130,102 @@
 </div>
 
 <style>
+    /* GARANTE QUE O RODAPÉ É REMOVIDO */
+    footer, nav.footer-menu { 
+        display: none !important; 
+    }
+
     .page-container {
         padding: 10px;
+    }
+    
+    /* ESTILOS DO CABEÇALHO E BOTÃO VOLTAR */
+    .page-header {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #00004d;
+        padding: 10px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        min-height: 50px;
     }
     .page-header h1 {
         color: #4CAF50;
         text-align: center;
-        margin-bottom: 20px;
-        background-color: #00004d;
-        padding: 15px;
-        border-radius: 10px;
+        margin: 0;
         font-family: 'Arial', sans-serif;
+        font-size: 1.5rem;
     }
+    .back-button {
+        position: absolute;
+        left: 15px;
+        background-color: #1a3250;
+        color: #fff;
+        text-decoration: none;
+        padding: 8px 15px;
+        border-radius: 5px;
+        font-size: 0.9rem;
+        transition: background-color 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .back-button:hover {
+        background-color: #2a5585;
+    }
+    .back-button i {
+        font-size: 1.1rem;
+    }
+
+    /* ESTILOS DOS NOVOS BOTÕES HORIZONTAIS */
+    .quick-access-buttons {
+        display: flex;
+        justify-content: space-around;
+        gap: 10px;
+        padding: 10px;
+        margin-bottom: 20px;
+        background-color: #00004d; 
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+    }
+    .access-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        text-decoration: none;
+        color: #fff;
+        flex: 1; /* Ocupa espaço igual */
+        padding: 5px 0;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+    }
+    .access-item:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        transform: scale(1.02);
+    }
+    .access-item img {
+        width: 30px;
+        height: 30px;
+        margin-bottom: 5px;
+        filter: drop-shadow(0 0 3px #87CEEB); /* Brilho nos ícones */
+    }
+    .access-item span {
+        font-size: 0.7rem;
+        font-weight: bold;
+    }
+
+    /* ESTILOS DO CONTEÚDO PRINCIPAL (MANTIDOS E AJUSTADOS) */
     .profile-container {
-        background-color: #0d1a2f; /* Azul escuro mais elegante */
+        background-color: #0d1a2f; 
         padding: 20px;
         border-radius: 10px;
         margin: 20px auto;
         max-width: 400px;
-        box-shadow: 0 8px 16px rgba(0,0,0,0.7); /* Sombra mais destacada */
+        box-shadow: 0 8px 16px rgba(0,0,0,0.7); 
         border: 1px solid #1a3250;
     }
     .profile-tabs {
@@ -240,7 +342,7 @@
     .logout-button {
         background-color: #dc3545;
         border: none;
-        box-shadow: 0 0 10px rgba(220, 53, 69, 0.5); /* Brilho inicial */
+        box-shadow: 0 0 10px rgba(220, 53, 69, 0.5); 
         transition: box-shadow 0.4s ease, transform 0.3s ease;
         padding: 12px 20px;
         font-weight: bold;
@@ -250,8 +352,8 @@
     }
     .logout-button:hover {
         background-color: #c82333;
-        box-shadow: 0 0 25px rgba(220, 53, 69, 1); /* Brilho maior no hover */
-        transform: translateY(-3px); /* Pequeno efeito de elevação */
+        box-shadow: 0 0 25px rgba(220, 53, 69, 1); 
+        transform: translateY(-3px); 
     }
     .messages {
         list-style-type: none;
@@ -311,10 +413,15 @@
 
         const tabToOpen = document.getElementById(activeTab);
         if (tabToOpen) {
-            document.getElementById('info-tab').classList.remove('active');
-            document.getElementById('bank-tab').classList.remove('active');
+            // Remove 'active' class from all tab contents
+            const allTabContents = document.getElementsByClassName('tab-content');
+            for (let i = 0; i < allTabContents.length; i++) {
+                allTabContents[i].classList.remove('active');
+            }
+            // Show the active tab content
             tabToOpen.classList.add('active');
             
+            // Set the active tab button
             const activeTabButton = document.querySelector(`.tab-button[onclick*="'${activeTab}'"]`);
             const allTabButtons = document.getElementsByClassName("tab-button");
             for (let i = 0; i < allTabButtons.length; i++) {
