@@ -1,5 +1,11 @@
 from django.contrib import admin
-from .models import CustomUser, PlatformSettings, Level, BankDetails, Deposit, Withdrawal, Task, Roulette, RouletteSettings, UserLevel, PlatformBankDetails
+from django.utils.safestring import mark_safe # Importação necessária para renderizar HTML no Admin
+from .models import (
+    CustomUser, PlatformSettings, Level, BankDetails, Deposit, 
+    Withdrawal, Task, Roulette, RouletteSettings, UserLevel, PlatformBankDetails
+)
+
+# ---
 
 # Registrando os modelos com classes ModelAdmin personalizadas
 
@@ -31,9 +37,34 @@ class PlatformBankDetailsAdmin(admin.ModelAdmin):
 
 @admin.register(Deposit)
 class DepositAdmin(admin.ModelAdmin):
-    list_display = ('user', 'amount', 'is_approved', 'created_at')
+    # Adicionamos 'proof_link' para mostrar o link na lista de depósitos
+    list_display = ('user', 'amount', 'is_approved', 'created_at', 'proof_link') 
     search_fields = ('user__phone_number',)
     list_filter = ('is_approved',)
+    
+    # Campos que serão apenas de leitura na página de edição/criação
+    readonly_fields = ('current_proof_display',)
+
+    # Método para criar o link do comprovativo na LISTA de depósitos
+    def proof_link(self, obj):
+        if obj.proof_of_payment:
+            # obj.proof_of_payment.url usa o Cloudinary Storage para obter o URL completo.
+            return mark_safe(f'<a href="{obj.proof_of_payment.url}" target="_blank">Ver Comprovativo</a>')
+        return "Nenhum"
+        
+    proof_link.short_description = 'Comprovativo'
+
+    # Método para exibir a imagem/link na PÁGINA DE EDIÇÃO/MODIFICAÇÃO
+    def current_proof_display(self, obj):
+        if obj.proof_of_payment:
+            # Exibe a imagem diretamente e fornece um link para visualização
+            return mark_safe(f'''
+                <a href="{obj.proof_of_payment.url}" target="_blank">Ver Imagem em Tamanho Real</a><br/>
+                <img src="{obj.proof_of_payment.url}" style="max-width:300px; height:auto; margin-top: 10px;" />
+            ''')
+        return "Nenhum Comprovativo Carregado"
+    
+    current_proof_display.short_description = 'Comprovativo Atual'
 
 @admin.register(Withdrawal)
 class WithdrawalAdmin(admin.ModelAdmin):
@@ -61,4 +92,5 @@ class UserLevelAdmin(admin.ModelAdmin):
     list_display = ('user', 'level', 'purchase_date', 'is_active')
     search_fields = ('user__phone_number', 'level__name')
     list_filter = ('is_active',)
-    
+
+# ---
