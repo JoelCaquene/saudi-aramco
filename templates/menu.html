@@ -63,6 +63,7 @@
             <img src="{% static 'icons/tarefa.png' %}" alt="Tarefa">
         </div>
         <span>Tarefa</span>
+        {# Mantenha a lógica original do botão 'Tarefa' #}
     </a>
     <a href="{% url 'renda' %}" class="grid-item">
         <div class="icon-container">
@@ -88,36 +89,90 @@
         </div>
         <span>Roleta da Sorte</span>
     </a>
-    <a href="{% url 'sobre' %}" class="grid-item">
+    
+    {# ALTERAÇÃO 1: Substituição de 'Sobre' por 'Perfil' na grade de botões #}
+    <a href="{% url 'perfil' %}" class="grid-item">
         <div class="icon-container">
-            <img src="{% static 'icons/sobre.png' %}" alt="Sobre">
+            <img src="{% static 'icons/perfil.png' %}" alt="Perfil"> {# Assumindo que você tem um ícone 'perfil.png' #}
         </div>
-        <span>Sobre</span>
+        <span>Perfil</span>
     </a>
 </div>
 
-<div class="vip-section">
-    {% if levels %}
-        <h2>Níveis de Investimento</h2>
-        <div class="vip-grid">
-            {% for level in levels %}
-                <div class="vip-card">
-                    <img src="{{ level.image.url }}" alt="{{ level.name }}">
-                    <div class="vip-info">
-                        <h3>{{ level.name }}</h3>
-                        <p>Depósito: $ {{ level.deposit_value }}</p>
-                        <p>Ganho Diário: $ {{ level.daily_gain }}</p>
-                        <p>Ganho Mensal: $ {{ level.monthly_gain }}</p>
-                        <p>Ciclo: {{ level.cycle }} dias</p>
-                    </div>
-                    <a href="{% url 'nivel' %}" class="buy-button">Comprar</a>
-                </div>
-            {% endfor %}
+{# ALTERAÇÃO 2: Substituição da lógica de Níveis de Investimento pelo texto árabe customizado #}
+<div class="vip-section custom-arabic-section">
+    <div class="arabic-content-block">
+        
+        <div class="arabic-sub-section">
+            <div class="arabic-header">
+                <img src="{% static 'images/about_us_icon.png' %}" alt="من نحن؟ Icone" class="arabic-icon">
+                <h2>من نحن؟</h2>
+            </div>
+            <p>
+                أرامكو السعودية (التي تُعرف رسمياً باسم شركة الزيت العربية السعودية) هي شركة النفط والغاز الطبيعي الحكومية في المملكة العربية السعودية.
+            </p>
+            <p>
+                هي واحدة من أكبر شركات الطاقة والكيماويات المتكاملة في العالم، ويقع مقرها الرئيسي في الظهران، بالمملكة العربية السعودية.
+            </p>
+            <p>
+                تُدير أكبر شبكة هيدروكربونات في العالم (نظام شبكة الغاز الرئيسية - Master Gas System) ولها دور محوري في إمدادات الطاقة العالمية لأكثر من 90 عاماً.
+            </p>
+            <p>
+                تُعرف تاريخياً بامتلاكها أحد أكبر احتياطيات النفط وأحد أكبر إنتاجات النفط الخام في العالم.
+            </p>
+            <p class="arabic-summary">
+                **ملخص عن أرامكو السعودية حسب الأقسام المطلوبة:**
+            </p>
         </div>
-    {% else %}
-        <p>Nenhum nível de investimento disponível no momento.</p>
-    {% endif %}
+        
+        <div class="arabic-sub-section">
+            <div class="arabic-header">
+                <img src="{% static 'images/goal_icon.png' %}" alt="الهدف؟ Icone" class="arabic-icon">
+                <h2>الهدف؟</h2>
+            </div>
+            <p>
+                الهدف الرئيسي هو توفير الطاقة الحيوية لدفع التجارة العالمية والشركات والتقدم في جميع أنحاء العالم.
+            </p>
+            <p>
+                تعظيم قيمة مواردها الهيدروكربونية، وفي الوقت نفسه، الاستثمار في النمو والابتكار من أجل استدامة أكبر.
+            </p>
+            <p>
+                الحفاظ على مكانتها كأكبر شركة نفط خام في العالم من حيث حجم الإنتاج وواحدة من أقل المنتجين تكلفة.
+            </p>
+            <p>
+                التنويع والتوسع في مجالات التكرير والكيماويات (المصب) والاستثمار في مبادرات منخفضة الكربون وتقنيات مثل التقاط وتخزين الكربون (CCUS) والهيدروجين.
+            </p>
+            <p>
+                دعم الاقتصاد السعودي من خلال برامج تهدف إلى إنشاء شراكات استراتيجية والتوسع الاقتصادي والتنويع.
+            </p>
+        </div>
+        
+        <div class="arabic-sub-section">
+            <div class="arabic-header">
+                <img src="{% static 'images/achievement_icon.png' %}" alt="الإنجازات؟ Icone" class="arabic-icon">
+                <h2>الإنجازات؟</h2>
+            </div>
+            <p>
+                غالباً ما تُوصف بأنها الشركة المساهمة (المُدرجة) الأعلى قيمة في العالم، بقيمة سوقية تصل إلى تريليونات الدولارات.
+            </p>
+            <p>
+                تمتلك حقل السفانية، وهو أكبر حقل نفط بحري (Offshore) في العالم.
+            </p>
+            <p>
+                حققت إنجازات هامة، مثل تجاوز مليون برميل يومياً من إنتاج النفط الخام في عام 1958 والوصول إلى 5 مليارات برميل من الإنتاج التراكمي في عام 1962.
+            </p>
+            <p>
+                طورت وتستخدم تقنيات متقدمة للاستكشاف والاستخراج، مثل محاكي المكامن (POWERS) في عام 1997.
+            </p>
+            <p>
+                تقوم باستثمارات عالمية كبيرة، مثل كونها المالك الوحيد لأكبر مصفاة نفط خام في موقع واحد في أمريكا الشمالية (بورت آرثر، تكساس).
+            </p>
+        </div>
+
+    </div>
 </div>
+{# FIM DA ALTERAÇÃO 2 #}
+
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -155,7 +210,7 @@
 </script>
 
 <style>
-    /* Estilos do Pop-up de Boas-Vindas */
+    /* Estilos do Pop-up de Boas-Vindas (MANTIDOS) */
     .popup-overlay {
         position: fixed;
         top: 0;
@@ -163,7 +218,7 @@
         width: 100%;
         height: 100%;
         background-color: rgba(0, 0, 0, 0.8);
-        display: none; /* Inicia oculto, será exibido via JS */
+        display: none; 
         justify-content: center;
         align-items: center;
         z-index: 1000;
@@ -172,14 +227,14 @@
     }
 
     .popup-content {
-        background-color: #0d1a2f; /* Fundo escuro similar ao tema */
+        background-color: #0d1a2f; 
         color: #fff;
-        width: 90%; /* Responsivo para ecrãs pequenos */
-        max-width: 400px; /* Limite para ecrãs maiores */
+        width: 90%; 
+        max-width: 400px; 
         border-radius: 10px;
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.9);
         overflow: hidden;
-        border: 2px solid #87CEEB; /* Borda azul clara */
+        border: 2px solid #87CEEB; 
     }
 
     .popup-header {
@@ -192,7 +247,6 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
-        /* Certifique-se de ter a imagem em 'static/images/popup_welcome_image.jpg' */
     }
 
     .popup-body {
@@ -202,7 +256,7 @@
 
     .popup-title {
         font-size: 1.1rem;
-        color: #4CAF50; /* Cor verde para destaque */
+        color: #4CAF50; 
         margin-top: 0;
         margin-bottom: 10px;
     }
@@ -215,7 +269,7 @@
     }
 
     .popup-text.commitment {
-        color: #87CEEB; /* Azul claro para compromisso */
+        color: #87CEEB; 
         font-weight: bold;
     }
     .popup-text.disclaimer {
@@ -243,7 +297,7 @@
         background-color: #45a049;
     }
 
-    /* Estilos para o Grid de Botões (MENU) - Sem os quadrados de cores diferentes */
+    /* Estilos para o Grid de Botões (MENU) - MANTIDOS */
     .buttons-grid {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
@@ -264,8 +318,6 @@
         padding: 5px;
         border-radius: 8px;
         transition: background-color 0.3s, transform 0.1s;
-        
-        /* Estilos para parecer um botão limpo */
         background-color: rgba(255, 255, 255, 0.05);
         border: none;
     }
@@ -289,71 +341,63 @@
     }
 
 
-    /* Manutenção dos estilos de VIP e outros */
-    .vip-section {
-        text-align: center;
+    /* ESTILOS PARA O NOVO BLOCO DE TEXTO ÁRABE (Requisito 2) */
+    .custom-arabic-section {
+        text-align: right; /* Alinha o texto à direita (padrão em árabe) */
         margin-top: 20px;
         padding: 15px;
         background-color: #1a1a4d;
         border-radius: 10px;
         box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+        font-family: 'Arial', sans-serif; /* Fonte legível para árabe, substitua se tiver uma melhor */
+        direction: rtl; /* Garante que o texto seja exibido da direita para a esquerda */
     }
-    .vip-section h2 {
-        font-size: 1.2rem;
-        color: #87CEEB;
-        margin-bottom: 15px;
+    
+    .arabic-sub-section {
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
     }
-    .vip-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 15px;
-        padding: 0 10px;
-    }
-    .vip-card {
+    
+    .arabic-header {
         display: flex;
-        flex-direction: column;
         align-items: center;
-        justify-content: center;
-        background-color: #0d1a2f;
-        border: 2px solid #4CAF50;
-        border-radius: 10px;
-        padding: 10px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        text-align: center;
-    }
-    .vip-card img {
-        width: 70px;
-        height: 70px;
-        border-radius: 50%;
-        object-fit: cover;
+        justify-content: flex-end; /* Alinha ícone e título à direita */
         margin-bottom: 10px;
+        color: #87CEEB; /* Cor para os títulos */
     }
-    .vip-info {
-        text-align: center;
-    }
-    .vip-info h3 {
+
+    .arabic-header h2 {
+        font-size: 1.4rem;
         margin: 0;
-        font-size: 1.2rem;
-        color: #fff;
+        padding-left: 10px; /* Espaçamento entre o título e o ícone */
     }
-    .vip-info p {
-        margin: 5px 0;
-        font-size: 0.8rem;
+    
+    .arabic-icon {
+        width: 40px;
+        height: 40px;
+        object-fit: contain;
+        filter: drop-shadow(0 0 5px #87CEEB); /* Efeito de brilho no ícone */
+    }
+
+    .arabic-sub-section p {
+        font-size: 0.9rem;
         color: #ccc;
+        margin-bottom: 8px;
+        line-height: 1.6;
+        text-align: justify; /* Justifica o texto para melhor aparência em árabe */
     }
-    .buy-button {
-        display: inline-block;
-        background-color: #4CAF50;
-        color: #fff;
-        padding: 8px 16px;
-        border-radius: 5px;
-        text-decoration: none;
+
+    .arabic-summary {
         font-weight: bold;
-        margin-top: 10px;
-        transition: background-color 0.3s;
+        color: #4CAF50 !important; /* Cor de destaque para o sumário */
+        margin-top: 15px !important;
     }
-    .buy-button:hover {
-        background-color: #45a049;
+
+    /* REMOÇÃO DO RODAPÉ (Requisito 1: 'REMOVA TODOS BOTÕES DE NAVEGAÇÃO INFERIOR DO MENU') */
+    /* Assumindo que os botões de navegação inferior estão no 'base.html' ou em uma tag específica que não está no seu snippet, mas que é comum em frameworks: */
+    footer, nav.footer-menu { 
+        display: none !important; 
     }
 </style>
 {% endblock %}
