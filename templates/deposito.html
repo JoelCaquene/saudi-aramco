@@ -18,12 +18,12 @@
 
 <div class="page-content">
     <div class="info-box">
-        <p>HORARIO DE DEPOSITO DAS 08:00 ATÉ 20:00 DE SEGUNDA A SABÁDO. DURAÇÃO DE APROVAÇÃO 5 A 10 MINUTOS.</p>
+        <p>HORARIO DE DEPOSITO DAS 08:30 ATÉ 21:00 DE SEGUNDA A DOMINGO. DURAÇÃO DE APROVAÇÃO 5 A 10 MINUTOS.</p>
     </div>
 
     {% if platform_bank_details %}
         <div class="bank-selection">
-            <h3>Selecione um Banco para o Depósito</h3>
+            <h3>Selecione um Agên/Banc para o Depósito</h3>
             <div class="bank-buttons">
                 {% for bank_detail in platform_bank_details %}
                     <button class="bank-button" data-bank-id="{{ forloop.counter }}">
@@ -36,9 +36,9 @@
         {% for bank_detail in platform_bank_details %}
             <div id="bank-details-{{ forloop.counter }}" class="bank-details-card" style="display: none;">
                 <p><strong>Nome do Titular:</strong> {{ bank_detail.account_holder_name }}</p>
-                <div class="IBAN-group">
+                <div class="XAVE/IBAN-group">
                     <p><strong>IBAN:</strong> <span id="IBAN-{{ forloop.counter }}">{{ bank_detail.IBAN }}</span></p>
-                    <button class="copy-button" data-IBAN="IBAN-{{ forloop.counter }}">Copiar IBAN</button>
+                    <button class="copy-button" data-XAVE-IBAN="XAVE-IBAN-{{ forloop.counter }}">Copiar XAVE/IBAN</button>
                 </div>
             </div>
         {% endfor %}
@@ -215,7 +215,7 @@
                     .then(() => {
                         e.target.innerText = 'Copiado!';
                         setTimeout(() => {
-                            e.target.innerText = 'Copiar IBAN';
+                            e.target.innerText = 'Copiar XAVE-IBAN';
                         }, 2000);
                     })
                     .catch(err => {
