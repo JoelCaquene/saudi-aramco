@@ -25,8 +25,7 @@
         <form id="deposit-form" method="post" enctype="multipart/form-data" class="form-style">
             {% csrf_token %}
             <input type="hidden" name="{{ form.amount.name }}" id="id_amount" value="">
-            {{ form.proof_of_payment.as_hidden }}
-
+            
             <div id="step-1" class="step-container active">
                 <h3>Etapa 1: Selecione o Banco 🏦</h3>
                 {% if platform_bank_details %}
@@ -77,6 +76,7 @@
 
                 <div class="form-group">
                     <label for="{{ form.proof_of_payment.id_for_label }}">Comprovativo de Pagamento:</label>
+                    
                     <input type="file" name="{{ form.proof_of_payment.name }}" id="{{ form.proof_of_payment.id_for_label }}" accept="image/*" required>
                     <span id="file-name-display" class="file-name-display">Nenhum arquivo escolhido.</span>
                 </div>
@@ -90,6 +90,7 @@
 {% endif %}
 
 <style>
+    /* ... (Mantenha seus estilos CSS aqui) ... */
     /* Estilos Gerais */
     .page-header, .page-content { background-color: #00004d; padding: 20px; margin: 20px auto; border-radius: 10px; max-width: 600px; }
     .page-header h1 { color: #4CAF50; text-align: center; margin: 0; }
@@ -123,7 +124,7 @@
     
     /* Etapa 3 - Comprovativo */
     .form-group label { display: block; margin-bottom: 5px; color: #87CEEB; }
-    .form-group input[type="file"] { width: 100%; padding: 10px; border: 1px solid #333; background-color: #0d1a2f; color: #fff; border-radius: 5px; box-sizing: border-box; }
+    /* REMOVIDO: .form-group input[type="file"] { ... } para evitar conflito com o campo VISÍVEL */
     .file-name-display { display: block; margin-top: 5px; color: #ccc; font-size: 0.9rem; }
     
     /* Botões de Navegação e Envio */
@@ -195,13 +196,11 @@
 
         bankButtons.forEach(button => {
             button.addEventListener('click', () => {
-                selectedBankId = button.dataset.bankId; // Armazena o ID do banco
+                selectedBankId = button.dataset.bankId;
                 
-                // Limpa e ativa o botão
                 bankButtons.forEach(btn => btn.classList.remove('active'));
                 button.classList.add('active');
 
-                // Mostra/Oculta detalhes do banco
                 bankDetailsCards.forEach(card => card.style.display = 'none');
                 const selectedBankDetails = document.getElementById(`bank-details-${selectedBankId}`);
                 if (selectedBankDetails) {
@@ -238,37 +237,46 @@
 
         amountButtons.forEach(button => {
             button.addEventListener('click', () => {
-                selectedAmount = button.dataset.amount; // Armazena o valor
+                selectedAmount = button.dataset.amount;
                 
-                // Limpa e ativa o botão
                 amountButtons.forEach(btn => btn.classList.remove('active'));
                 button.classList.add('active');
 
                 // Atualiza a exibição e habilita o botão de próxima etapa
+                // Usando parseFloat e toFixed(2) para garantir o formato monetário
                 selectedAmountText.innerText = parseFloat(selectedAmount).toFixed(2);
                 finalAmountText.innerText = parseFloat(selectedAmount).toFixed(2);
                 document.getElementById('id_amount').value = selectedAmount; // Atualiza campo oculto do Django
                 
                 selectedAmountDisplay.style.display = 'block';
                 nextButtonStep2.disabled = false;
+
+                // Após selecionar o valor, verifica o estado do comprovativo para a Etapa 3
+                const proofInput = document.getElementById('id_proof_of_payment');
+                const submitButton = document.getElementById('submit-deposit-button');
+                submitButton.disabled = !(proofInput && proofInput.files.length > 0);
             });
         });
 
 
-        // --- Etapa 3: Envio do Comprovativo ---
-        const proofInput = document.getElementById('id_proof_of_payment');
+        // --- Etapa 3: Envio do Comprovativo (CORRIGIDO) ---
+        // A chave é usar o ID gerado pelo Django para o campo VISÍVEL: id="{{ form.proof_of_payment.id_for_label }}"
+        const proofInput = document.getElementById('{{ form.proof_of_payment.id_for_label }}');
         const fileNameDisplay = document.getElementById('file-name-display');
         const submitButton = document.getElementById('submit-deposit-button');
 
-        proofInput.addEventListener('change', () => {
-            if (proofInput.files.length > 0) {
-                fileNameDisplay.innerText = proofInput.files[0].name;
-                submitButton.disabled = false; // Habilita o botão de envio
-            } else {
-                fileNameDisplay.innerText = 'Nenhum arquivo escolhido.';
-                submitButton.disabled = true; // Desabilita se nenhum arquivo
-            }
-        });
+        // VERIFICAÇÃO INICIAL: O campo de upload deve existir
+        if (proofInput) {
+            proofInput.addEventListener('change', () => {
+                if (proofInput.files.length > 0) {
+                    fileNameDisplay.innerText = proofInput.files[0].name;
+                    submitButton.disabled = false; // Habilita o botão de envio
+                } else {
+                    fileNameDisplay.innerText = 'Nenhum arquivo escolhido.';
+                    submitButton.disabled = true; // Desabilita se nenhum arquivo
+                }
+            });
+        }
         
         // Inicia na Etapa 1
         updateStepVisibility();
