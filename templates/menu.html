@@ -103,8 +103,16 @@
     <div class="arabic-content-block">
         
         <div class="arabic-sub-section">
+            {# NOVO: Imagem em tela cheia no topo desta sub-seção #}
+            <div class="full-width-image-container">
+                {# Assumindo que 'about_us_icon.png' é a imagem do executivo #}
+                <img src="{% static 'images/about_us_icon.png' %}" alt="من نحن؟ Imagem principal" class="full-width-arabic-image"> 
+            </div>
+            
             <div class="arabic-header">
-                <img src="{% static 'images/about_us_icon.png' %}" alt="من نحن؟ Icone" class="arabic-icon">
+                {# O ícone agora pode ser um ícone simbólico menor (se você tiver outro) ou apenas o texto #}
+                {# Se você quiser manter o ícone pequeno ao lado do título, mantenha esta linha: #}
+                {# <img src="{% static 'images/about_us_icon_small.png' %}" alt="من نحن؟ Icone" class="arabic-icon"> #}
                 <h2>من نحن؟</h2>
             </div>
             <p>
@@ -126,7 +134,7 @@
         
         <div class="arabic-sub-section">
             <div class="arabic-header">
-                <img src="{% static 'images/goal_icon.png' %}" alt="الهدف؟ Icone" class="arabic-icon">
+                <img src="{% static 'images/goal_icon.png' %}" alt="الهدف؟ Icone" class="arabic-icon-small">
                 <h2>الهدف؟</h2>
             </div>
             <p>
@@ -148,7 +156,7 @@
         
         <div class="arabic-sub-section">
             <div class="arabic-header">
-                <img src="{% static 'images/achievement_icon.png' %}" alt="الإنجازات؟ Icone" class="arabic-icon">
+                <img src="{% static 'images/achievement_icon.png' %}" alt="الإنجازات؟ Icone" class="arabic-icon-small">
                 <h2>الإنجازات؟</h2>
             </div>
             <p>
@@ -158,7 +166,7 @@
                 تمتلك حقل السفانية، وهو أكبر حقل نفط بحري (Offshore) في العالم.
             </p>
             <p>
-                حققت إنجازات هامة، مثل تجاوز مليون برميل يومياً من إنتاج النفط الخام في عام 1958 والوصول إلى 5 مليارات برميل من الإنتاج التراكمي في عام 1962.
+                حققت إنجازات هامة، مثل تجاوز مليون برميل يومياً من إنتاج النفط الخام في عام 1958 والوصول إلى 5 مليares de barriis de produção cumulativa em 1962.
             </p>
             <p>
                 طورت وتستخدم تقنيات متقدمة للاستكشاف والاستخراج، مثل محاكي المكامن (POWERS) في عام 1997.
@@ -342,14 +350,14 @@
 
     /* ESTILOS PARA O NOVO BLOCO DE TEXTO ÁRABE (Requisito 2) */
     .custom-arabic-section {
-        text-align: right; /* Alinha o texto à direita (padrão em árabe) */
+        text-align: right; 
         margin-top: 20px;
         padding: 15px;
         background-color: #1a1a4d;
         border-radius: 10px;
         box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-        font-family: 'Arial', sans-serif; /* Fonte legível para árabe, substitua se tiver uma melhor */
-        direction: rtl; /* Garante que o texto seja exibido da direita para a esquerda */
+        font-family: 'Arial', sans-serif; 
+        direction: rtl; 
     }
     
     .arabic-sub-section {
@@ -358,26 +366,43 @@
         border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
     }
     
+    /* NOVO: Estilo para a imagem grande */
+    .full-width-image-container {
+        margin-bottom: 15px;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    }
+    
+    .full-width-arabic-image {
+        width: 100%; /* Largura total */
+        height: 150px; /* Altura fixa para dar o efeito de banner */
+        object-fit: cover; /* Garante que a imagem cubra a área sem distorcer muito */
+        display: block;
+    }
+
+    /* Alterando a estrutura do header para não quebrar com a imagem grande */
     .arabic-header {
         display: flex;
         align-items: center;
-        justify-content: flex-end; /* Alinha ícone e título à direita */
+        justify-content: flex-end; /* Alinha o título à direita */
         margin-bottom: 10px;
-        color: #87CEEB; /* Cor para os títulos */
+        color: #87CEEB; 
     }
 
     .arabic-header h2 {
         font-size: 1.4rem;
         margin: 0;
-        padding-left: 10px; /* Espaçamento entre o título e o ícone */
+        /* Não precisa mais de padding-left se o ícone foi movido ou removido */
     }
     
-    /* ALTERAÇÃO AQUI: AUMENTANDO O TAMANHO DO ÍCONE ÁRABE DE 40px PARA 60px */
-    .arabic-icon {
-        width: 60px; /* Aumentado */
-        height: 60px; /* Aumentado */
+    /* Renomeei o estilo do ícone pequeno para evitar conflito com a imagem grande */
+    .arabic-icon-small {
+        width: 30px; /* Ícones pequenos para "Objetivo" e "Conquistas" */
+        height: 30px; 
         object-fit: contain;
-        filter: drop-shadow(0 0 5px #87CEEB); /* Efeito de brilho no ícone */
+        filter: drop-shadow(0 0 5px #87CEEB); 
+        padding-right: 10px; /* Espaço entre o ícone e o título */
     }
 
     .arabic-sub-section p {
@@ -385,17 +410,16 @@
         color: #ccc;
         margin-bottom: 8px;
         line-height: 1.6;
-        text-align: justify; /* Justifica o texto para melhor aparência em árabe */
+        text-align: justify; 
     }
 
     .arabic-summary {
         font-weight: bold;
-        color: #4CAF50 !important; /* Cor de destaque para o sumário */
+        color: #4CAF50 !important; 
         margin-top: 15px !important;
     }
 
-    /* REMOÇÃO DO RODAPÉ (Requisito 1: 'REMOVA TODOS BOTÕES DE NAVEGAÇÃO INFERIOR DO MENU') */
-    /* Assumindo que os botões de navegação inferior estão no 'base.html' ou em uma tag específica que não está no seu snippet, mas que é comum em frameworks: */
+    /* REMOÇÃO DO RODAPÉ (MANTIDO) */
     footer, nav.footer-menu { 
         display: none !important; 
     }
