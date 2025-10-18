@@ -64,21 +64,15 @@
         <span>Tarefa</span>
     </a>
     
-    {# O botão 'Sobre' foi mantido para que restem 4 botões na linha #}
-    <a href="{% url 'sobre' %}" class="grid-item">
+    {# Substituição de 'Sobre' por 'Perfil' (Quarta e última posição da grade) #}
+    <a href="{% url 'perfil' %}" class="grid-item">
         <div class="icon-container">
-            {# Uso de um ícone genérico já que não temos o ícone 'Sobre' #}
-            <img src="{% static 'icons/sobre.png' %}" alt="Sobre">
+            <img src="{% static 'icons/perfil.png' %}" alt="Perfil"> 
         </div>
-        <span>Sobre</span>
+        <span>Perfil</span>
     </a>
     
-    {# BOTÕES REMOVIDOS CONFORME SOLICITADO #}
-    {# <a href="{% url 'renda' %}" class="grid-item">...</a> #}
-    {# <a href="{% url 'nivel' %}" class="grid-item">...</a> #}
-    {# <a href="{% url 'equipa' %}" class="grid-item">...</a> #}
-    {# <a href="{% url 'roleta' %}" class="grid-item">...</a> #}
-    {# <a href="{% url 'perfil' %}" class="grid-item">...</a> #}
+    {# OS OUTROS BOTÕES FORAM REMOVIDOS PARA MANTER APENAS 4 NA GRADE #}
 </div>
 
 {# Bloco de texto traduzido e imagens em formato banner (100% largura) #}
