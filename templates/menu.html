@@ -102,17 +102,13 @@
 <div class="vip-section custom-arabic-section">
     <div class="arabic-content-block">
         
+        {# PRIMEIRA SUB-SEÇÃO: من نحن؟ #}
         <div class="arabic-sub-section">
-            {# NOVO: Imagem em tela cheia no topo desta sub-seção #}
             <div class="full-width-image-container">
-                {# Assumindo que 'about_us_icon.png' é a imagem do executivo #}
                 <img src="{% static 'images/about_us_icon.png' %}" alt="من نحن؟ Imagem principal" class="full-width-arabic-image"> 
             </div>
             
             <div class="arabic-header">
-                {# O ícone agora pode ser um ícone simbólico menor (se você tiver outro) ou apenas o texto #}
-                {# Se você quiser manter o ícone pequeno ao lado do título, mantenha esta linha: #}
-                {# <img src="{% static 'images/about_us_icon_small.png' %}" alt="من نحن؟ Icone" class="arabic-icon"> #}
                 <h2>من نحن؟</h2>
             </div>
             <p>
@@ -132,9 +128,12 @@
             </p>
         </div>
         
+        {# SEGUNDA SUB-SEÇÃO: الهدف؟ (IMAGEM GRANDE APLICADA) #}
         <div class="arabic-sub-section">
+             <div class="full-width-image-container">
+                <img src="{% static 'images/goal_icon.png' %}" alt="الهدف؟ Imagem principal" class="full-width-arabic-image"> 
+            </div>
             <div class="arabic-header">
-                <img src="{% static 'images/goal_icon.png' %}" alt="الهدف؟ Icone" class="arabic-icon-small">
                 <h2>الهدف؟</h2>
             </div>
             <p>
@@ -154,9 +153,12 @@
             </p>
         </div>
         
+        {# TERCEIRA SUB-SEÇÃO: الإنجازات؟ (IMAGEM GRANDE APLICADA) #}
         <div class="arabic-sub-section">
+             <div class="full-width-image-container">
+                <img src="{% static 'images/achievement_icon.png' %}" alt="الإنجازات؟ Imagem principal" class="full-width-arabic-image">
+            </div>
             <div class="arabic-header">
-                <img src="{% static 'images/achievement_icon.png' %}" alt="الإنجازات؟ Icone" class="arabic-icon-small">
                 <h2>الإنجازات؟</h2>
             </div>
             <p>
@@ -348,7 +350,7 @@
     }
 
 
-    /* ESTILOS PARA O NOVO BLOCO DE TEXTO ÁRABE (Requisito 2) */
+    /* ESTILOS PARA O NOVO BLOCO DE TEXTO ÁRABE (APLICADOS A TODAS AS 3 IMAGENS) */
     .custom-arabic-section {
         text-align: right; 
         margin-top: 20px;
@@ -366,7 +368,7 @@
         border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
     }
     
-    /* NOVO: Estilo para a imagem grande */
+    /* ESTILOS DA IMAGEM EM TELA CHEIA (APLICADOS A TODAS AS 3) */
     .full-width-image-container {
         margin-bottom: 15px;
         border-radius: 8px;
@@ -377,11 +379,15 @@
     .full-width-arabic-image {
         width: 100%; /* Largura total */
         height: 150px; /* Altura fixa para dar o efeito de banner */
-        object-fit: cover; /* Garante que a imagem cubra a área sem distorcer muito */
+        object-fit: cover; /* Garante que a imagem cubra a área sem distorcer, mas pode cortar as bordas */
         display: block;
     }
+    
+    /* ALTERAÇÃO: Garante que a imagem se ajuste completamente dentro da área, sem cortar. */
+    /* Caso a imagem não apareça completa, use 'contain' no lugar de 'cover' */
+    /* Exemplo: .full-width-arabic-image { ... object-fit: contain; background-color: #000; } */
 
-    /* Alterando a estrutura do header para não quebrar com a imagem grande */
+
     .arabic-header {
         display: flex;
         align-items: center;
@@ -393,16 +399,11 @@
     .arabic-header h2 {
         font-size: 1.4rem;
         margin: 0;
-        /* Não precisa mais de padding-left se o ícone foi movido ou removido */
     }
     
-    /* Renomeei o estilo do ícone pequeno para evitar conflito com a imagem grande */
+    /* CLASSE REMOVIDA DO HTML, MANTIDA NO CSS CASO VOLTE A SER USADA */
     .arabic-icon-small {
-        width: 30px; /* Ícones pequenos para "Objetivo" e "Conquistas" */
-        height: 30px; 
-        object-fit: contain;
-        filter: drop-shadow(0 0 5px #87CEEB); 
-        padding-right: 10px; /* Espaço entre o ícone e o título */
+        display: none; 
     }
 
     .arabic-sub-section p {
