@@ -13,13 +13,13 @@ from datetime import date
 from .forms import RegisterForm, DepositForm, WithdrawalForm, BankDetailsForm
 from .models import PlatformSettings, CustomUser, Level, UserLevel, BankDetails, Deposit, Withdrawal, Task, PlatformBankDetails, Roulette, RouletteSettings
 
-# --- NOVA FUNÇÃO ADICIONADA ---
+# --- FUNÇÃO ATUALIZADA ---
 def home(request):
     if request.user.is_authenticated:
         return redirect('menu')
     else:
         return redirect('cadastro')
-# --- FIM DA NOVA FUNÇÃO ---
+# --- FIM DA FUNÇÃO ATUALIZADA ---
 
 def menu(request):
     user_level = None
@@ -106,28 +106,49 @@ def user_logout(request):
     logout(request)
     return redirect('menu')
 
+# --- FUNÇÃO DE DEPÓSITO ATUALIZADA PARA O NOVO FLUXO ---
 @login_required
 def deposito(request):
     platform_bank_details = PlatformBankDetails.objects.all()
     deposit_instruction = PlatformSettings.objects.first().deposit_instruction if PlatformSettings.objects.first() else 'Instruções de depósito não disponíveis.'
+    
+    # Busca todos os valores de depósito dos Níveis para a Etapa 2
+    level_deposits = Level.objects.all().values_list('deposit_value', flat=True).distinct().order_by('deposit_value')
+    # Converte os Decimais para strings formatadas para JS
+    level_deposits_list = [str(d) for d in level_deposits] 
 
     if request.method == 'POST':
+        # O formulário agora é submetido na Etapa 3
+        # Os campos 'amount' e 'proof_of_payment' são necessários
         form = DepositForm(request.POST, request.FILES)
         if form.is_valid():
             deposit = form.save(commit=False)
             deposit.user = request.user
             deposit.save()
-            messages.success(request, 'Depósito enviado para aprovação. Aguarde de 5 a 45 minutos.')
-            return redirect('deposito')
-    else:
-        form = DepositForm()
-
+            
+            # Não exibe mensagem aqui, mas sim no template
+            # O template irá exibir uma tela de sucesso após a submissão
+            return render(request, 'deposito.html', {
+                'platform_bank_details': platform_bank_details,
+                'deposit_instruction': deposit_instruction,
+                'level_deposits_list': level_deposits_list,
+                'deposit_success': True # Variável de contexto para a tela de sucesso
+            })
+        else:
+            messages.error(request, 'Erro ao enviar o depósito. Verifique o valor e o comprovativo.')
+    
+    # Se não for POST ou se for a primeira vez acessando a página
+    form = DepositForm()
+    
     context = {
         'platform_bank_details': platform_bank_details,
         'deposit_instruction': deposit_instruction,
         'form': form,
+        'level_deposits_list': level_deposits_list,
+        'deposit_success': False, # Estado inicial
     }
     return render(request, 'deposito.html', context)
+# --- FIM DA FUNÇÃO DE DEPÓSITO ATUALIZADA ---
 
 @login_required
 def approve_deposit(request, deposit_id):

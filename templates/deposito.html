@@ -5,202 +5,205 @@
 
 {% block content %}
 <div class="page-header">
-    <h1>Depósito</h1>
+    <h1>Depósito em 3 Etapas</h1>
 </div>
 
-{% if messages %}
-    <ul class="messages">
-        {% for message in messages %}
-            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-        {% endfor %}
-    </ul>
-{% endif %}
-
-<div class="page-content">
-    <div class="info-box">
-        <p>HORARIO DE DEPOSITO DAS 08:00 ATÉ 20:00 DE SEGUNDA A SABÁDO. DURAÇÃO DE APROVAÇÃO 5 A 10 MINUTOS.</p>
+{% if deposit_success %}
+    <div class="success-screen">
+        <img src="{% static 'images/success_icon.png' %}" alt="Depósito Enviado" class="success-icon">
+        <h2>Depósito Enviado com Sucesso! 🚀</h2>
+        <p>Aguarde a aprovação. O seu depósito está a ser processado e será confirmado em 5 a 45 minutos.</p>
+        <p class="horario-info">HORÁRIO DE ATENDIMENTO: 08:00 ATÉ 20:00 (Segunda a Sábado).</p>
+        <a href="{% url 'menu' %}" class="submit-button back-to-menu-button">Voltar ao Menu</a>
     </div>
-
-    {% if platform_bank_details %}
-        <div class="bank-selection">
-            <h3>Selecione um Banco para o Depósito</h3>
-            <div class="bank-buttons">
-                {% for bank_detail in platform_bank_details %}
-                    <button class="bank-button" data-bank-id="{{ forloop.counter }}">
-                        {{ bank_detail.bank_name }}
-                    </button>
-                {% endfor %}
-            </div>
+{% else %}
+    <div class="page-content">
+        <div class="info-box">
+            <p>{{ deposit_instruction }}</p>
         </div>
 
-        {% for bank_detail in platform_bank_details %}
-            <div id="bank-details-{{ forloop.counter }}" class="bank-details-card" style="display: none;">
-                <p><strong>Nome do Titular:</strong> {{ bank_detail.account_holder_name }}</p>
-                <div class="IBAN-group">
-                    <p><strong>IBAN:</strong> <span id="IBAN-{{ forloop.counter }}">{{ bank_detail.IBAN }}</span></p>
-                    <button class="copy-button" data-IBAN="IBAN-{{ forloop.counter }}">Copiar IBAN</button>
+        <form id="deposit-form" method="post" enctype="multipart/form-data" class="form-style">
+            {% csrf_token %}
+            <input type="hidden" name="{{ form.amount.name }}" id="id_amount" value="">
+            {{ form.proof_of_payment.as_hidden }}
+
+            <div id="step-1" class="step-container active">
+                <h3>Etapa 1: Selecione o Banco 🏦</h3>
+                {% if platform_bank_details %}
+                    <div class="bank-buttons">
+                        {% for bank_detail in platform_bank_details %}
+                            <button type="button" class="bank-button" data-bank-id="{{ forloop.counter }}">
+                                {{ bank_detail.bank_name }}
+                            </button>
+                        {% endfor %}
+                    </div>
+
+                    {% for bank_detail in platform_bank_details %}
+                        <div id="bank-details-{{ forloop.counter }}" class="bank-details-card" style="display: none;">
+                            <p><strong>Nome do Titular:</strong> {{ bank_detail.account_holder_name }}</p>
+                            <div class="IBAN-group">
+                                <p><strong>IBAN:</strong> <span id="IBAN-{{ forloop.counter }}">{{ bank_detail.IBAN }}</span></p>
+                                <button type="button" class="copy-button" data-iban-id="IBAN-{{ forloop.counter }}">Copiar IBAN</button>
+                            </div>
+                            <button type="button" class="next-button" data-next-step="2">Próxima Etapa (2/3) ➡️</button>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="error-message">Nenhum detalhe bancário da plataforma disponível no momento.</p>
+                {% endif %}
+            </div>
+
+            <div id="step-2" class="step-container" style="display: none;">
+                <h3>Etapa 2: Selecione o Valor do Depósito ✨</h3>
+                <p class="step-info">Selecione o valor correspondente ao Nível que você deseja ativar.</p>
+                <div class="amount-buttons">
+                    {% for deposit_value in level_deposits_list %}
+                        <button type="button" class="amount-button" data-amount="{{ deposit_value }}">
+                            {{ deposit_value }} $
+                        </button>
+                    {% empty %}
+                        <p class="error-message">Nenhum valor de depósito de Nível encontrado. Contacte o suporte.</p>
+                    {% endfor %}
+                </div>
+                <div class="selected-amount-display" style="display: none;">
+                    <p>Valor Selecionado: <span id="selected-amount-text">0.00</span> $</p>
+                    <button type="button" class="next-button" data-next-step="3" id="btn-step-2-next" disabled>Próxima Etapa (3/3) ➡️</button>
                 </div>
             </div>
-        {% endfor %}
-    {% else %}
-        <div class="info-box">
-            <p>Nenhum detalhe bancário da plataforma disponível no momento.</p>
-        </div>
-    {% endif %}
 
-    <div class="deposit-form-section">
-        <h3>Preencha os dados do seu depósito</h3>
-        <form method="post" enctype="multipart/form-data" class="form-style">
-            {% csrf_token %}
-            <div class="form-group">
-                <label for="{{ form.amount.id_for_label }}">Valor do Depósito:</label>
-                {{ form.amount }}
+            <div id="step-3" class="step-container" style="display: none;">
+                <h3>Etapa 3: Carregar Comprovativo 📸</h3>
+                <p class="step-info">Carregue o comprovativo da transferência para o valor selecionado de <strong id="final-amount-text">0.00</strong> $.</p>
+
+                <div class="form-group">
+                    <label for="{{ form.proof_of_payment.id_for_label }}">Comprovativo de Pagamento:</label>
+                    <input type="file" name="{{ form.proof_of_payment.name }}" id="{{ form.proof_of_payment.id_for_label }}" accept="image/*" required>
+                    <span id="file-name-display" class="file-name-display">Nenhum arquivo escolhido.</span>
+                </div>
+                <button type="submit" class="submit-button" id="submit-deposit-button" disabled>
+                    Finalizar e Enviar Depósito ✅
+                </button>
+                <button type="button" class="prev-button" data-prev-step="2">Voltar à Etapa 2</button>
             </div>
-            <div class="form-group">
-                <label for="{{ form.proof_of_payment.id_for_label }}">Comprovativo de Pagamento:</label>
-                {{ form.proof_of_payment }}
-            </div>
-            <button type="submit" class="submit-button">Enviar Comprovativo</button>
         </form>
     </div>
-</div>
+{% endif %}
 
 <style>
-    .page-header, .page-content {
-        background-color: #00004d;
-        padding: 20px;
-        margin: 20px;
-        border-radius: 10px;
-    }
-    .page-header h1 {
-        color: #4CAF50;
-        text-align: center;
-    }
-    .info-box {
-        background-color: #1a1a4d;
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-    }
-    .info-box p {
-        line-height: 1.5;
-        color: #fff;
-    }
-    .bank-selection {
-        text-align: center;
-        margin-bottom: 20px;
-    }
-    .bank-selection h3 {
-        color: #87CEEB;
-        margin-bottom: 10px;
-    }
-    .bank-buttons {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 10px;
-    }
-    .bank-button {
-        background-color: #0d1a2f;
-        color: #fff;
-        border: 2px solid #4CAF50;
-        border-radius: 8px;
-        padding: 12px 20px;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: background-color 0.3s, transform 0.2s;
-    }
-    .bank-button:hover {
-        background-color: #1a1a4d;
-        transform: scale(1.05);
-    }
-    .bank-button.active {
-        background-color: #4CAF50;
-        color: #000;
-        font-weight: bold;
-    }
-    .bank-details-card {
-        background-color: #1a1a4d;
-        border: 2px solid #87CEEB;
-        border-radius: 10px;
-        padding: 15px;
-        margin-bottom: 20px;
-    }
-    .IBAN-group {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-top: 10px;
-    }
-    .IBAN-group p {
-        margin: 0;
-        color: #ccc;
-    }
-    .copy-button {
-        padding: 5px 10px;
-        background-color: #87CEEB;
-        color: #000;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-weight: bold;
-    }
-    .deposit-form-section {
-        background-color: #1a1a4d;
-        padding: 20px;
-        border-radius: 10px;
-    }
-    .deposit-form-section h3 {
-        color: #fff;
-        margin-bottom: 15px;
-    }
-    .form-style .form-group {
-        margin-bottom: 15px;
-    }
-    .form-style label {
-        display: block;
-        margin-bottom: 5px;
-        color: #87CEEB;
-    }
-    .form-style input[type="number"], .form-style input[type="file"] {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #333;
-        background-color: #0d1a2f;
-        color: #fff;
-        border-radius: 5px;
-        box-sizing: border-box;
-    }
-    .submit-button {
-        width: 100%;
-        padding: 12px;
-        background-color: #4CAF50;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: background-color 0.3s;
-    }
-    .submit-button:hover {
-        background-color: #388e3c;
-    }
+    /* Estilos Gerais */
+    .page-header, .page-content { background-color: #00004d; padding: 20px; margin: 20px auto; border-radius: 10px; max-width: 600px; }
+    .page-header h1 { color: #4CAF50; text-align: center; margin: 0; }
+    .info-box { background-color: #1a1a4d; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+    .info-box p, .step-info { line-height: 1.5; color: #fff; text-align: center; }
+    .error-message { color: #ff4d4d; text-align: center; font-weight: bold; }
+
+    /* Estilos das Etapas */
+    .step-container h3 { color: #87CEEB; text-align: center; margin-bottom: 20px; border-bottom: 1px solid #1a1a4d; padding-bottom: 10px; }
+
+    /* Botões de Banco (Etapa 1) */
+    .bank-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px; }
+    .bank-button { background-color: #0d1a2f; color: #fff; border: 2px solid #4CAF50; border-radius: 8px; padding: 12px 20px; font-size: 1rem; cursor: pointer; transition: background-color 0.3s, transform 0.2s; }
+    .bank-button:hover { background-color: #1a1a4d; transform: scale(1.05); }
+    .bank-button.active { background-color: #4CAF50; color: #000; font-weight: bold; border-color: #000; }
+    
+    /* Detalhes do Banco (Etapa 1) */
+    .bank-details-card { background-color: #1a1a4d; border: 2px solid #87CEEB; border-radius: 10px; padding: 15px; margin-bottom: 20px; text-align: center;}
+    .bank-details-card p { color: #ccc; margin: 5px 0; }
+    .IBAN-group { display: flex; align-items: center; justify-content: space-between; margin: 15px 0; padding: 10px; background-color: #0d1a2f; border-radius: 5px; }
+    .IBAN-group p { margin: 0; font-weight: bold; }
+    .copy-button { padding: 5px 10px; background-color: #87CEEB; color: #000; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: background-color 0.3s; }
+    .copy-button:hover { background-color: #6aabcb; }
+    
+    /* Botões de Valor (Etapa 2) */
+    .amount-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 20px; }
+    .amount-button { background-color: #0d1a2f; color: #fff; border: 1px solid #87CEEB; border-radius: 5px; padding: 10px 15px; font-size: 1.1rem; cursor: pointer; transition: background-color 0.3s; }
+    .amount-button.active { background-color: #87CEEB; color: #000; font-weight: bold; }
+    .selected-amount-display { text-align: center; margin-top: 20px; padding: 10px; border-top: 1px solid #1a1a4d; }
+    .selected-amount-display p { font-size: 1.2rem; color: #4CAF50; }
+    
+    /* Etapa 3 - Comprovativo */
+    .form-group label { display: block; margin-bottom: 5px; color: #87CEEB; }
+    .form-group input[type="file"] { width: 100%; padding: 10px; border: 1px solid #333; background-color: #0d1a2f; color: #fff; border-radius: 5px; box-sizing: border-box; }
+    .file-name-display { display: block; margin-top: 5px; color: #ccc; font-size: 0.9rem; }
+    
+    /* Botões de Navegação e Envio */
+    .next-button, .prev-button, .submit-button { padding: 12px; border: none; border-radius: 5px; font-size: 1rem; cursor: pointer; transition: background-color 0.3s; margin-top: 15px; width: 100%; }
+    .next-button { background-color: #87CEEB; color: #000; font-weight: bold; }
+    .next-button:hover:not(:disabled) { background-color: #6aabcb; }
+    .prev-button { background-color: #333; color: #fff; }
+    .prev-button:hover { background-color: #555; }
+    .submit-button { background-color: #4CAF50; color: #fff; font-weight: bold; }
+    .submit-button:hover:not(:disabled) { background-color: #388e3c; }
+    
+    /* Desabilitados */
+    .next-button:disabled, .submit-button:disabled { background-color: #555 !important; cursor: not-allowed; opacity: 0.6; }
+
+    /* Tela de Sucesso */
+    .success-screen { text-align: center; padding: 40px; background-color: #1a1a4d; border-radius: 15px; margin: 40px auto; max-width: 500px; border: 2px solid #4CAF50;}
+    .success-screen h2 { color: #4CAF50; margin-bottom: 15px; }
+    .success-screen p { color: #fff; margin-bottom: 25px; }
+    .success-screen .horario-info { color: #ccc; font-size: 0.9em; }
+    .success-icon { width: 80px; height: 80px; margin-bottom: 20px; }
+    .back-to-menu-button { display: block; margin-top: 30px; }
 </style>
+
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+        const steps = [
+            document.getElementById('step-1'),
+            document.getElementById('step-2'),
+            document.getElementById('step-3')
+        ];
+        let currentStep = 1;
+        
+        // Variáveis de estado
+        let selectedBankId = null;
+        let selectedAmount = null;
+
+        const updateStepVisibility = () => {
+            steps.forEach((step, index) => {
+                step.style.display = (index + 1) === currentStep ? 'block' : 'none';
+            });
+            window.scrollTo(0, 0); // Rola para o topo ao mudar de etapa
+        };
+
+        // --- Lógica Geral de Navegação ---
+        document.querySelectorAll('.next-button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const nextStep = parseInt(e.target.dataset.nextStep);
+                if (nextStep === 3 && selectedAmount === null) {
+                    alert('Por favor, selecione um valor antes de continuar.');
+                    return;
+                }
+                currentStep = nextStep;
+                updateStepVisibility();
+            });
+        });
+
+        document.querySelectorAll('.prev-button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const prevStep = parseInt(e.target.dataset.prevStep);
+                currentStep = prevStep;
+                updateStepVisibility();
+            });
+        });
+
+
+        // --- Etapa 1: Seleção do Banco e IBAN ---
         const bankButtons = document.querySelectorAll('.bank-button');
         const bankDetailsCards = document.querySelectorAll('.bank-details-card');
 
         bankButtons.forEach(button => {
             button.addEventListener('click', () => {
-                const bankId = button.dataset.bankId;
-
+                selectedBankId = button.dataset.bankId; // Armazena o ID do banco
+                
+                // Limpa e ativa o botão
                 bankButtons.forEach(btn => btn.classList.remove('active'));
                 button.classList.add('active');
 
+                // Mostra/Oculta detalhes do banco
                 bankDetailsCards.forEach(card => card.style.display = 'none');
-
-                const selectedBankDetails = document.getElementById(`bank-details-${bankId}`);
+                const selectedBankDetails = document.getElementById(`bank-details-${selectedBankId}`);
                 if (selectedBankDetails) {
                     selectedBankDetails.style.display = 'block';
                 }
@@ -209,7 +212,7 @@
 
         document.querySelectorAll('.copy-button').forEach(button => {
             button.addEventListener('click', (e) => {
-                const IBANId = e.target.dataset.IBAN;
+                const IBANId = e.target.dataset.ibanId;
                 const IBANText = document.getElementById(IBANId).innerText;
                 navigator.clipboard.writeText(IBANText)
                     .then(() => {
@@ -220,9 +223,55 @@
                     })
                     .catch(err => {
                         console.error('Falha ao copiar: ', err);
+                        alert('Falha ao copiar o IBAN. Tente novamente.');
                     });
             });
         });
+
+
+        // --- Etapa 2: Seleção do Valor ---
+        const amountButtons = document.querySelectorAll('.amount-button');
+        const selectedAmountText = document.getElementById('selected-amount-text');
+        const finalAmountText = document.getElementById('final-amount-text');
+        const nextButtonStep2 = document.getElementById('btn-step-2-next');
+        const selectedAmountDisplay = document.querySelector('.selected-amount-display');
+
+        amountButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                selectedAmount = button.dataset.amount; // Armazena o valor
+                
+                // Limpa e ativa o botão
+                amountButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+
+                // Atualiza a exibição e habilita o botão de próxima etapa
+                selectedAmountText.innerText = parseFloat(selectedAmount).toFixed(2);
+                finalAmountText.innerText = parseFloat(selectedAmount).toFixed(2);
+                document.getElementById('id_amount').value = selectedAmount; // Atualiza campo oculto do Django
+                
+                selectedAmountDisplay.style.display = 'block';
+                nextButtonStep2.disabled = false;
+            });
+        });
+
+
+        // --- Etapa 3: Envio do Comprovativo ---
+        const proofInput = document.getElementById('id_proof_of_payment');
+        const fileNameDisplay = document.getElementById('file-name-display');
+        const submitButton = document.getElementById('submit-deposit-button');
+
+        proofInput.addEventListener('change', () => {
+            if (proofInput.files.length > 0) {
+                fileNameDisplay.innerText = proofInput.files[0].name;
+                submitButton.disabled = false; // Habilita o botão de envio
+            } else {
+                fileNameDisplay.innerText = 'Nenhum arquivo escolhido.';
+                submitButton.disabled = true; // Desabilita se nenhum arquivo
+            }
+        });
+        
+        // Inicia na Etapa 1
+        updateStepVisibility();
     });
 </script>
 {% endblock %}
