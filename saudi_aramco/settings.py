@@ -43,6 +43,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # WhiteNoise para servir arquivos estáticos de forma eficiente
     'whitenoise.runserver_nostatic',
+    
+    # === NOVOS APPS CLOUDINARY ===
+    'cloudinary',
+    'cloudinary_storage',
+    # ============================
+    
     'core',
     # CLOUDINARY REMOVIDO
 ]
@@ -124,11 +130,40 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
-# Configurações para arquivos de mídia (AGORA USANDO ARMAZENAMENTO LOCAL/VOLÁTIL)
-# O diretório onde os arquivos de mídia serão salvos
-MEDIA_ROOT = BASE_DIR / 'media'
-# A URL para acessar os arquivos de mídia
-MEDIA_URL = '/media/'
+# ======================================================================
+# CONFIGURAÇÕES DE ARMAZENAMENTO DE ARQUIVOS (MEDIA FILES)
+# ======================================================================
+
+if not DEBUG:
+    # ----------------------------------------------------------------------
+    # 1. Configuração do Cloudinary (para Produção)
+    # Requer que estas chaves (CLOUD_NAME, API_KEY, API_SECRET) sejam definidas
+    # como Variáveis de Ambiente no painel do Render.
+    CLOUDINARY_STORAGE = {
+        'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME'),
+        'API_KEY': config('CLOUDINARY_API_KEY'),
+        'API_SECRET': config('CLOUDINARY_API_SECRET'),
+        # Opcional: Define um prefixo/pasta para os arquivos no Cloudinary
+        'MEDIA_FOLDER': 'deposit_proofs',
+    }
+    
+    # 2. Em Produção, use o Cloudinary como o método padrão para salvar arquivos
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    
+    # Em produção, o Cloudinary gera a URL, mas mantemos o MEDIA_URL para consistência
+    MEDIA_URL = '/media/'
+    
+else:
+    # 3. Em Desenvolvimento (DEBUG=True), use o armazenamento local
+    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+
+    # Configurações para arquivos de mídia (ARMAZENAMENTO LOCAL)
+    MEDIA_ROOT = BASE_DIR / 'media'
+    MEDIA_URL = '/media/'
+
+# ======================================================================
+# FIM DA CONFIGURAÇÃO DE ARMAZENAMENTO
+# ======================================================================
 
 
 # Default primary key field type
