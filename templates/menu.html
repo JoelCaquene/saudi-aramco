@@ -89,98 +89,95 @@
         <span>Roleta da Sorte</span>
     </a>
     
-    {# ALTERAÇÃO 1: Substituição de 'Sobre' por 'Perfil' na grade de botões #}
+    {# Substituição de 'Sobre' por 'Perfil' na grade de botões #}
     <a href="{% url 'perfil' %}" class="grid-item">
         <div class="icon-container">
-            <img src="{% static 'icons/perfil.png' %}" alt="Perfil"> {# Assumindo que você tem um ícone 'perfil.png' #}
+            <img src="{% static 'icons/perfil.png' %}" alt="Perfil"> 
         </div>
         <span>Perfil</span>
     </a>
 </div>
 
-{# ALTERAÇÃO 2: Substituição da lógica de Níveis de Investimento pelo texto árabe customizado #}
-<div class="vip-section custom-arabic-section">
-    <div class="arabic-content-block">
+{# Bloco de texto traduzido e imagens em formato banner (100% largura) #}
+<div class="vip-section custom-section">
+    <div class="content-block">
         
-        {# PRIMEIRA SUB-SEÇÃO: من نحن؟ #}
-        <div class="arabic-sub-section">
+        {# PRIMEIRA SUB-SEÇÃO: Quem somos? #}
+        <div class="sub-section">
             <div class="full-width-image-container">
-                <img src="{% static 'images/about_us_icon.png' %}" alt="من نحن؟ Imagem principal" class="full-width-arabic-image"> 
+                <img src="{% static 'images/about_us_icon.png' %}" alt="Quem somos? Imagem principal" class="full-width-image"> 
             </div>
             
-            <div class="arabic-header">
-                <h2>من نحن؟</h2>
+            <div class="header">
+                <h2>Quem somos?</h2>
             </div>
             <p>
-                أرامكو السعودية (التي تُعرف رسمياً باسم شركة الزيت العربية السعودية) هي شركة النفط والغاز الطبيعي الحكومية في المملكة العربية السعودية.
+                A Saudi Aramco (formalmente Saudi Arabian Oil Company) é a empresa estatal de petróleo e gás natural da Arábia Saudita.
             </p>
             <p>
-                هي واحدة من أكبر شركات الطاقة والكيماويات المتكاملة في العالم، ويقع مقرها الرئيسي في الظهران، بالمملكة العربية السعودية.
+                É uma das maiores companhias integradas de energia e produtos químicos do mundo, com sede em Dhahran, Arábia Saudita.
             </p>
             <p>
-                تُدير أكبر شبكة هيدروكربونات في العالم (نظام شبكة الغاز الرئيسية - Master Gas System) ولها دور محوري في إمدادات الطاقة العالمية لأكثر من 90 عاماً.
+                Opera a maior rede mundial de hidrocarbonetos (o Master Gas System) e tem um papel central no fornecimento de energia global há mais de 90 anos.
             </p>
             <p>
-                تُعرف تاريخياً بامتلاكها أحد أكبر احتياطيات النفط وأحد أكبر إنتاجات النفط الخام في العالم.
+                É historicamente reconhecida por ter uma das maiores reservas de petróleo e uma das maiores produções de petróleo cru do mundo.
             </p>
-            <p class="arabic-summary">
-                **ملخص عن أرامكو السعودية حسب الأقسام المطلوبة:**
+            <p class="summary">
+                **Abaixo está um resumo sobre a Saudi Aramco, conforme os subtemas solicitados:**
             </p>
         </div>
         
-        {# SEGUNDA SUB-SEÇÃO: الهدف؟ (IMAGEM GRANDE APLICADA) #}
-        <div class="arabic-sub-section">
+        {# SEGUNDA SUB-SEÇÃO: Objetivo? #}
+        <div class="sub-section">
              <div class="full-width-image-container">
-                <img src="{% static 'images/goal_icon.png' %}" alt="الهدف؟ Imagem principal" class="full-width-arabic-image"> 
+                <img src="{% static 'images/goal_icon.png' %}" alt="Objetivo? Imagem principal" class="full-width-image"> 
             </div>
-            <div class="arabic-header">
-                <h2>الهدف؟</h2>
+            <div class="header">
+                <h2>Objetivo?</h2>
             </div>
             <p>
-                الهدف الرئيسي هو توفير الطاقة الحيوية لدفع التجارة العالمية والشركات والتقدم في جميع أنحاء العالم.
+                O principal objetivo é fornecer a energia vital para impulsionar o comércio global, as empresas e o progresso em todo o mundo.
             </p>
             <p>
-                تعظيم قيمة مواردها الهيدروكربونية، وفي الوقت نفسه، الاستثمار في النمو والابتكار من أجل استدامة أكبر.
+                Maximizar o valor de seus recursos de hidrocarbonetos e, ao mesmo tempo, investir no crescimento e inovar para maior sustentabilidade.
             </p>
             <p>
-                الحفاظ على مكانتها كأكبر شركة نفط خام في العالم من حيث حجم الإنتاج وواحدة من أقل المنتجين تكلفة.
+                Manter sua posição como a maior empresa de petróleo cru do mundo em volume de produção e um dos produtores de menor custo.
             </p>
             <p>
-                التنويع والتوسع في مجالات التكرير والكيماويات (المصب) والاستثمار في مبادرات منخفضة الكربون وتقنيات مثل التقاط وتخزين الكربون (CCUS) والهيدروجين.
+                Diversificar e expandir para as áreas de refino e produtos químicos (Downstream) e investir em iniciativas de baixo carbono e tecnologias como Captura e Armazenamento de Carbono (CCUS) e hidrogênio.
             </p>
             <p>
-                دعم الاقتصاد السعودي من خلال برامج تهدف إلى إنشاء شراكات استراتيجية والتوسع الاقتصادي والتنويع.
+                Apoiar a economia da Arábia Saudita através de programas que visam a criação de parcerias estratégicas, a expansão econômica e a diversificação.
             </p>
         </div>
         
-        {# TERCEIRA SUB-SEÇÃO: الإنجازات؟ (IMAGEM GRANDE APLICADA) #}
-        <div class="arabic-sub-section">
+        {# TERCEIRA SUB-SEÇÃO: Conquistas? #}
+        <div class="sub-section">
              <div class="full-width-image-container">
-                <img src="{% static 'images/achievement_icon.png' %}" alt="الإنجازات؟ Imagem principal" class="full-width-arabic-image">
+                <img src="{% static 'images/achievement_icon.png' %}" alt="Conquistas? Imagem principal" class="full-width-image">
             </div>
-            <div class="arabic-header">
-                <h2>الإنجازات؟</h2>
+            <div class="header">
+                <h2>Conquistas?</h2>
             </div>
             <p>
-                غالباً ما تُوصف بأنها الشركة المساهمة (المُدرجة) الأعلى قيمة في العالم، بقيمة سوقية تصل إلى تريليونات الدولارات.
+                É frequentemente citada como a empresa de capital aberto de maior valor do mundo, com valor de mercado na casa dos trilhões de dólares.
             </p>
             <p>
-                تمتلك حقل السفانية، وهو أكبر حقل نفط بحري (Offshore) في العالم.
+                Detém o Campo de Safaniya, o maior campo de petróleo offshore do mundo.
             </p>
             <p>
-                حققت إنجازات هامة، مثل تجاوز مليون برميل يومياً من إنتاج النفط الخام في عام 1958 والوصول إلى 5 مليares de barriis de produção cumulativa em 1962.
+                <p>
+                Desenvolveu e utiliza tecnologias avançadas para exploração e extração, como o simulador de reservatórios (POWERS) em 1997.
             </p>
             <p>
-                طورت وتستخدم تقنيات متقدمة للاستكشاف والاستخراج، مثل محاكي المكامن (POWERS) في عام 1997.
-            </p>
-            <p>
-                تقوم باستثمارات عالمية كبيرة، مثل كونها المالك الوحيد لأكبر مصفاة نفط خام في موقع واحد في أمريكا الشمالية (بورت آرثر، تكساس).
+                Realiza grandes investimentos globais, como ser a única proprietária da maior refinaria de petróleo bruto em um único local na América do Norte (Port Arthur, Texas).
             </p>
         </div>
 
     </div>
 </div>
-{# FIM DA ALTERAÇÃO 2 #}
 
 
 <script>
@@ -350,25 +347,27 @@
     }
 
 
-    /* ESTILOS PARA O NOVO BLOCO DE TEXTO ÁRABE (APLICADOS A TODAS AS 3 IMAGENS) */
-    .custom-arabic-section {
-        text-align: right; 
+    /* ESTILOS PARA O BLOCO DE TEXTO */
+    .custom-section {
+        /* Nome da classe ajustada para ser mais genérica e permitir ajustes */
+        text-align: left; /* Padrão para português/latino */
         margin-top: 20px;
         padding: 15px;
         background-color: #1a1a4d;
         border-radius: 10px;
         box-shadow: 0 4px 8px rgba(0,0,0,0.5);
         font-family: 'Arial', sans-serif; 
-        direction: rtl; 
+        direction: ltr; /* Mudar para direção LTR (Left-to-Right) */
     }
     
-    .arabic-sub-section {
+    .sub-section {
+        /* Renomeada para ser mais genérica */
         margin-bottom: 20px;
         padding-bottom: 10px;
         border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
     }
     
-    /* ESTILOS DA IMAGEM EM TELA CHEIA (APLICADOS A TODAS AS 3) */
+    /* ESTILOS DA IMAGEM EM TELA CHEIA (MANTIDOS E AJUSTADOS O NOME DA CLASSE) */
     .full-width-image-container {
         margin-bottom: 15px;
         border-radius: 8px;
@@ -376,48 +375,51 @@
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
     }
     
-    .full-width-arabic-image {
-        width: 100%; /* Largura total */
-        height: 150px; /* Altura fixa para dar o efeito de banner */
-        object-fit: cover; /* Garante que a imagem cubra a área sem distorcer, mas pode cortar as bordas */
+    .full-width-image {
+        /* Nome da classe ajustada */
+        width: 100%; 
+        height: 150px; 
+        object-fit: cover; 
         display: block;
     }
     
-    /* ALTERAÇÃO: Garante que a imagem se ajuste completamente dentro da área, sem cortar. */
-    /* Caso a imagem não apareça completa, use 'contain' no lugar de 'cover' */
-    /* Exemplo: .full-width-arabic-image { ... object-fit: contain; background-color: #000; } */
-
-
-    .arabic-header {
+    .header {
+        /* Renomeada para ser mais genérica */
         display: flex;
         align-items: center;
-        justify-content: flex-end; /* Alinha o título à direita */
+        justify-content: flex-start; /* Alinha o título à esquerda */
         margin-bottom: 10px;
         color: #87CEEB; 
     }
 
-    .arabic-header h2 {
+    .header h2 {
         font-size: 1.4rem;
         margin: 0;
     }
     
-    /* CLASSE REMOVIDA DO HTML, MANTIDA NO CSS CASO VOLTE A SER USADA */
+    /* CLASSES DO ÁRABE REMOVIDAS/ALTERADAS */
     .arabic-icon-small {
         display: none; 
     }
+    .custom-arabic-section, .arabic-sub-section, .arabic-header, .arabic-summary, .full-width-arabic-image {
+        /* Classes antigas que não devem mais ter efeito. Serão substituídas pelas novas */
+    }
 
-    .arabic-sub-section p {
+    .sub-section p {
+        /* Renomeada para ser mais genérica */
         font-size: 0.9rem;
         color: #ccc;
         margin-bottom: 8px;
         line-height: 1.6;
-        text-align: justify; 
+        text-align: justify; /* Melhor para blocos de texto */
     }
 
-    .arabic-summary {
+    .summary {
+        /* Renomeada para ser mais genérica */
         font-weight: bold;
         color: #4CAF50 !important; 
         margin-top: 15px !important;
+        text-align: left !important;
     }
 
     /* REMOÇÃO DO RODAPÉ (MANTIDO) */
