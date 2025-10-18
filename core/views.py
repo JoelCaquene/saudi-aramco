@@ -161,8 +161,8 @@ def saque(request):
                 messages.error(request, 'Por favor, adicione suas coordenadas bancárias no seu perfil antes de solicitar um saque.')
                 return redirect('perfil')
             
-            if amount < 2500:
-                messages.error(request, 'O valor mínimo para saque é 2500 $.')
+            if amount < 14:
+                messages.error(request, 'O valor mínimo para saque é 14 $.')
             elif request.user.available_balance < amount:
                 messages.error(request, 'Saldo insuficiente.')
             else:
