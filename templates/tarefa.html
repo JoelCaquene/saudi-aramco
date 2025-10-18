@@ -14,18 +14,30 @@
             <p>⚠️ **Atenção:** Você precisa ter um nível ativo para realizar tarefas. Faça um <a href="{% url 'deposito' %}" class="link-styled">depósito</a> e compre um nível para começar a ganhar.</p>
         </div>
     {% else %}
-        <div class="task-machine-container">
-            <div class="machine-screen">
-                <p id="task-message">Clique no botão abaixo para trabalhar e gerar seu ganho diário!</p>
-            </div>
-            <div class="machine-body">
-                <div class="machine-light-container">
-                    <div class="machine-light"></div>
-                    <div class="machine-light"></div>
-                    <div class="machine-light"></div>
+        
+        <div class="refinery-image-top-container">
+            <img src="{% static 'images/refinaria_banner.jpg' %}" alt="Refinaria de Petróleo" class="refinery-banner-image">
+        </div>
+
+        <div class="task-machine-container refinery-style">
+            
+            <div class="refinery-tower">
+                <div class="tower-pipe pipe-left"></div>
+                <div class="tower-pipe pipe-right"></div>
+                
+                <div class="machine-screen refinery-screen">
+                    <p id="task-message">Clique no botão abaixo para trabalhar e gerar seu ganho diário!</p>
                 </div>
-                <div class="machine-dial"></div>
-                <button id="work-button" class="work-button">TRABALHAR</button>
+            </div>
+
+            <div class="machine-body refinery-body">
+                <div class="machine-light-container refinery-lights">
+                    <div class="machine-light red-light" id="light-red"></div>
+                    <div class="machine-light yellow-light" id="light-yellow"></div>
+                    <div class="machine-light green-light" id="light-green"></div>
+                </div>
+                
+                <button id="work-button" class="work-button refinery-valve-button">REFINAR</button>
             </div>
         </div>
 
@@ -49,31 +61,67 @@
                 const taskMessage = document.getElementById('task-message');
                 const tasksRemainingSpan = document.getElementById('tasks-remaining');
                 
+                // Elementos de luzes
+                const lightRed = document.getElementById('light-red');
+                const lightYellow = document.getElementById('light-yellow');
+                const lightGreen = document.getElementById('light-green');
+
                 // Estes valores devem ser passados do backend.
-                // Substitua a linha abaixo por uma variável do Django
+                // Variáveis do Django para JS (LÓGICA MANTIDA)
                 let tasksCompletedToday = {{ tasks_completed_today|default:0 }}; 
                 let maxTasks = {{ max_tasks|default:1 }};
 
+                function updateLightStatus(isWorking = false) {
+                    lightRed.classList.remove('active', 'blinking');
+                    lightYellow.classList.remove('active', 'blinking');
+                    lightGreen.classList.remove('active', 'blinking');
+
+                    const tasksRemaining = maxTasks - tasksCompletedToday;
+
+                    if (isWorking) {
+                        // Estado de processamento
+                        lightYellow.classList.add('blinking');
+                    } else if (tasksRemaining > 0) {
+                        // Pronto para trabalhar (Luz Vermelha Piscando)
+                        lightRed.classList.add('blinking');
+                        workButton.textContent = "REFINAR";
+                    } else {
+                        // Tarefas concluídas (Luz Verde Acesa)
+                        lightGreen.classList.add('active');
+                        workButton.textContent = "CONCLUÍDO";
+                    }
+                }
+
                 function checkTasksStatus() {
-                    if (tasksCompletedToday >= maxTasks) {
+                    const tasksRemaining = maxTasks - tasksCompletedToday;
+
+                    if (tasksRemaining <= 0) {
                         if (workButton) {
                             workButton.disabled = true;
                             taskMessage.textContent = "Você já completou suas tarefas diárias.";
                         }
+                    } else {
+                         if (workButton) {
+                            workButton.disabled = false;
+                            taskMessage.textContent = "Clique no botão abaixo para trabalhar e gerar seu ganho diário!";
+                        }
                     }
+                    
                     if (tasksRemainingSpan) {
-                        tasksRemainingSpan.textContent = maxTasks - tasksCompletedToday;
+                        tasksRemainingSpan.textContent = Math.max(0, tasksRemaining);
                     }
+                    
+                    updateLightStatus();
                 }
         
                 if (workButton) {
                     workButton.addEventListener('click', function() {
                         if (tasksCompletedToday < maxTasks) {
                             workButton.disabled = true;
-                            taskMessage.textContent = "Trabalhando... aguarde.";
+                            taskMessage.textContent = "Processando o Petróleo... aguarde.";
+                            updateLightStatus(true); // Ativa o estado de processamento
 
-                            // Fazer uma requisição AJAX para o backend aqui
-                            // Exemplo usando fetch API
+                            // Fazer uma requisição AJAX para o backend aqui (LÓGICA MANTIDA)
                             fetch("{% url 'process_task' %}", {
                                 method: 'POST',
                                 headers: {
@@ -88,15 +136,15 @@
                                     taskMessage.textContent = `Tarefa concluída! Ganho diário: $ ${data.daily_gain}.`;
                                     // Atualizar o saldo do usuário na página se necessário
                                 } else {
-                                    taskMessage.textContent = data.message || "Ocorreu um erro ao proces$ a tarefa.";
+                                    taskMessage.textContent = data.message || "Ocorreu um erro ao processar a tarefa.";
                                 }
                                 checkTasksStatus();
-                                workButton.disabled = false; // Reativar o botão se houver erro ou para a próxima tarefa
+                                workButton.disabled = (maxTasks - tasksCompletedToday <= 0); // Reativa se houver tarefas restantes
                             })
                             .catch(error => {
                                 console.error('Erro:', error);
                                 taskMessage.textContent = "Erro na comunicação com o servidor.";
-                                workButton.disabled = false;
+                                checkTasksStatus();
                             });
                         }
                     });
@@ -108,126 +156,170 @@
 </div>
 
 <style>
+    /* ------------------------------------ */
+    /* NOVO DESIGN: REFINARIA DE PETRÓLEO */
+    /* ------------------------------------ */
+    
     .page-container {
         padding: 10px;
     }
+
     .page-header {
-        text-align: center;
-        padding: 15px 0;
-        background-color: #00004d;
-        border-radius: 10px;
-        margin-bottom: 20px;
+        background-color: #0d1a2f; /* Fundo mais escuro */
+        border-bottom: 3px solid #87CEEB; /* Borda temática */
     }
     .page-header h1 {
-        color: #4CAF50;
-        font-family: 'Arial', sans-serif;
+        color: #87CEEB; /* Cor azul claro */
+        text-shadow: 0 0 5px rgba(135, 206, 235, 0.5);
     }
-    .info-box-danger {
-        background-color: #5d0f1f;
-        border-left: 5px solid #ff4444;
-        padding: 15px;
-        border-radius: 8px;
-        margin: 20px auto;
-        max-width: 400px;
-        line-height: 1.6;
-        color: #e0e0e0;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    
+    /* Imagem de Topo */
+    .refinery-image-top-container {
+        margin: -10px -10px 20px -10px; /* Expande para as bordas do page-container */
+        overflow: hidden;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5);
+        border-bottom: 3px solid #1a3250;
     }
-    .link-styled {
-        color: #87CEEB;
-        text-decoration: underline;
+    .refinery-banner-image {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        filter: brightness(0.7) grayscale(0.1); /* Toque industrial */
     }
-    .task-machine-container {
-        background-color: #0d1a2f;
-        padding: 20px;
+
+    /* Container Principal da Máquina (Refinaria) */
+    .task-machine-container.refinery-style {
+        background: linear-gradient(to bottom, #1a3250, #0d1a2f);
+        border: 4px solid #000;
         border-radius: 15px;
-        margin: 20px auto;
-        max-width: 350px;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-        text-align: center;
-        border: 2px solid #1a3250;
+        max-width: 380px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.8), inset 0 0 15px rgba(255, 255, 255, 0.05);
     }
-    .machine-screen {
+
+    /* Estrutura da Torre (Novo Elemento Visual) */
+    .refinery-tower {
+        position: relative;
+        background-color: #333;
+        border-radius: 8px;
+        padding: 10px;
+        margin: 10px 0;
+        box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.7);
+    }
+
+    /* Tubulações */
+    .tower-pipe {
+        position: absolute;
+        top: 0;
+        width: 8px;
+        height: 100%;
+        background-color: #666;
+        border: 1px solid #999;
+        border-radius: 5px;
+        box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.5);
+    }
+    .pipe-left { left: 5px; }
+    .pipe-right { right: 5px; }
+
+    /* Tela de Status */
+    .machine-screen.refinery-screen {
         background-color: #00002d;
-        color: #fff;
-        padding: 20px;
-        border-radius: 10px;
-        margin-bottom: 20px;
-        min-height: 80px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        color: #FFC107; /* Cor de alerta ou petróleo */
+        border: 2px solid #FFC107;
+        box-shadow: inset 0 0 15px rgba(255, 193, 7, 0.5);
+        min-height: 90px;
     }
     .machine-screen p {
-        margin: 0;
-        font-size: 1.1rem;
-        font-family: 'Courier New', Courier, monospace;
+        font-size: 1rem;
+        text-shadow: 0 0 5px #FFC107;
     }
-    .machine-body {
-        position: relative;
-        padding: 10px;
+
+    /* Corpo da Máquina (Onde fica o botão) */
+    .machine-body.refinery-body {
+        padding: 20px 0 10px 0;
     }
-    .machine-light-container {
-        display: flex;
-        justify-content: space-around;
-        margin-bottom: 20px;
+
+    /* Luzes de Refinaria (Painel de Controle) */
+    .machine-light-container.refinery-lights {
+        margin-bottom: 30px;
+        background-color: #222;
+        border-radius: 5px;
+        padding: 10px 20px;
+        box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.9);
     }
     .machine-light {
-        width: 15px;
-        height: 15px;
-        background-color: #ff4444;
-        border-radius: 50%;
-        box-shadow: 0 0 10px #ff4444;
-        animation: blink 1s infinite alternate;
-    }
-    .machine-light:nth-child(2) { animation-delay: 0.3s; }
-    .machine-light:nth-child(3) { animation-delay: 0.6s; }
-
-    @keyframes blink {
-        from { opacity: 0.5; }
-        to { opacity: 1; }
-    }
-    .work-button {
-        display: block;
-        width: 80%;
-        padding: 15px;
-        margin: 0 auto;
-        background-color: #4CAF50;
-        color: #fff;
-        border: none;
-        border-radius: 50px;
-        font-size: 1.2rem;
-        font-weight: bold;
-        cursor: pointer;
-        box-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
-        transition: transform 0.2s, box-shadow 0.4s;
-    }
-    .work-button:hover {
-        transform: scale(1.05);
-        box-shadow: 0 0 25px rgba(76, 175, 80, 0.8);
-    }
-    .work-button:disabled {
-        background-color: #757575;
-        cursor: not-allowed;
+        width: 20px;
+        height: 20px;
+        border: 2px solid #555;
+        background-color: #111; /* Cor padrão (apagada) */
         box-shadow: none;
+        animation: none; /* Remove a animação padrão */
+        opacity: 1;
     }
-    .tasks-info {
-        background-color: #0d1a2f;
-        padding: 15px;
+
+    /* Estados das Luzes */
+    .machine-light.active, .machine-light.blinking {
+        border: 2px solid #fff;
+    }
+
+    /* Vermelha: Pronto para Iniciar/Erro */
+    .machine-light.red-light.active, .machine-light.red-light.blinking {
+        background-color: #D32F2F;
+        box-shadow: 0 0 12px #D32F2F;
+    }
+    
+    /* Amarela: Processando */
+    .machine-light.yellow-light.active, .machine-light.yellow-light.blinking {
+        background-color: #FFC107;
+        box-shadow: 0 0 12px #FFC107;
+    }
+    
+    /* Verde: Concluído */
+    .machine-light.green-light.active, .machine-light.green-light.blinking {
+        background-color: #4CAF50;
+        box-shadow: 0 0 12px #4CAF50;
+    }
+    
+    /* Animação de Piscar Otimizada */
+    @keyframes blinking {
+        0% { opacity: 0.2; }
+        100% { opacity: 1; }
+    }
+    .machine-light.blinking {
+        animation: blinking 0.8s infinite alternate;
+    }
+    
+    /* Botão Válvula de Refinaria */
+    .work-button.refinery-valve-button {
+        background-color: #E65100; /* Laranja Escuro (Óleo/Fogo) */
+        background-image: linear-gradient(to top, #E65100, #FF9800);
+        color: #fff;
         border-radius: 10px;
-        margin-top: 20px;
-        max-width: 400px;
-        margin: 20px auto;
+        box-shadow: 0 5px 0 #BF360C, 0 0 15px rgba(255, 152, 0, 0.5);
+        transform: scale(0.95);
+        margin-bottom: 10px;
+    }
+    .work-button.refinery-valve-button:active {
+        transform: translateY(3px) scale(0.95);
+        box-shadow: 0 2px 0 #BF360C;
+    }
+    .work-button.refinery-valve-button:disabled {
+        background-color: #555 !important;
+        background-image: none !important;
+        box-shadow: 0 5px 0 #333 !important;
+        color: #bbb;
+    }
+
+    /* Informações de Nível (Ajustadas para o novo tema) */
+    .tasks-info {
+        background-color: #1a3250; /* Cor azul marinho mais clara */
+        border: 1px solid #87CEEB;
         box-shadow: 0 4px 8px rgba(0,0,0,0.5);
     }
-    .tasks-info p {
-        color: #fff;
-        margin: 5px 0;
-        font-family: 'Arial', sans-serif;
-    }
     .tasks-info strong {
-        color: #87CEEB;
+        color: #4CAF50; /* Cor verde para destacar o status */
     }
+
+    /* Resetando estilos antigos não utilizados: */
+    .machine-dial { display: none; }
 </style>
 {% endblock %}
