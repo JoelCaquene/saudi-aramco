@@ -290,13 +290,55 @@ def nivel(request):
 
 @login_required
 def equipa(request):
-    team_members = CustomUser.objects.filter(invited_by=request.user).order_by('-date_joined')
+    user = request.user
+
+    # 1. Encontra todos os membros da equipe (convidados diretos)
+    team_members = CustomUser.objects.filter(invited_by=user).order_by('-date_joined')
     team_count = team_members.count()
+
+    # 2. Obtém todos os Níveis disponíveis
+    all_levels = Level.objects.all().order_by('deposit_value')
+
+    # 3. Contabilização por Nível de Investimento
+    levels_data = []
+    total_investors = 0
     
+    # Dicionário para armazenar membros por nível (para exibição no template)
+    members_by_level = {} 
+    
+    # Preenche os dados para cada nível
+    for level in all_levels:
+        # Filtra membros da equipe que possuem este nível ATIVO
+        members_with_level = team_members.filter(userlevel__level=level, userlevel__is_active=True).distinct()
+        
+        levels_data.append({
+            'name': level.name,
+            'count': members_with_level.count(),
+            'members': members_with_level, 
+        })
+        members_by_level[level.name] = members_with_level
+        total_investors += members_with_level.count()
+
+    # 4. Contabilização de Não Investidores GERAL
+    # Membros que NÃO têm NENHUM UserLevel ativo
+    non_invested_members = team_members.exclude(userlevel__is_active=True)
+    total_non_investors = non_invested_members.count()
+    
+    # Adiciona a contagem de não investidos na estrutura levels_data para a primeira aba
+    levels_data.insert(0, {
+        'name': 'Não Investido',
+        'count': total_non_investors,
+        'members': non_invested_members,
+    })
+
     context = {
-        'team_members': team_members,
-        'team_count': team_count,
-        'invite_link': request.build_absolute_uri(reverse('cadastro')) + f'?invite={request.user.invite_code}',
+        'team_members': team_members, # Membros totais
+        'team_count': team_count, # Contagem total de membros
+        'invite_link': request.build_absolute_uri(reverse('cadastro')) + f'?invite={user.invite_code}',
+        'levels_data': levels_data, # Dados detalhados por nível (para as abas)
+        'total_investors': total_investors, # Contagem de investidores
+        'total_non_investors': total_non_investors, # Contagem de não investidores
+        'subsidy_balance': user.subsidy_balance, # Saldo de Subsídios
     }
     return render(request, 'equipa.html', context)
 

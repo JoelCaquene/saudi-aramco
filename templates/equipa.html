@@ -9,11 +9,25 @@
 </div>
 <div class="team-container">
 
-    <div class="team-summary">
-        <h3>Visão Geral</h3>
-        <p>Número de Membros: <span>{{ team_count }}</span></p>
+    <div class="summary-area">
+        <div class="summary-card total">
+            <h3>Membros Totais</h3>
+            <p>{{ team_count }}</p>
+        </div>
+        <div class="summary-card invested">
+            <h3>Investidores Total</h3>
+            <p>{{ total_investors }}</p>
+        </div>
+        <div class="summary-card non-invested">
+            <h3>Não Investidos</h3>
+            <p>{{ total_non_investors }}</p>
+        </div>
+        <div class="summary-card subsidy">
+            <h3>Subsídios Acumulados</h3>
+            <p>R$ {{ subsidy_balance|floatformat:2 }}</p>
+        </div>
     </div>
-
+    
     <div class="invite-link-section">
         <h3>Link de Convite</h3>
         <div class="invite-box">
@@ -23,30 +37,41 @@
     </div>
 
     <div class="team-members-list">
-        <h3>Membros da Equipa</h3>
-        {% if team_members %}
-            <div class="team-grid">
-                {% for member in team_members %}
-                    <div class="member-card">
-                        <div class="member-info">
-                            <p class="phone-number">{{ member.phone_number }}</p>
-                            {% if member.level_active %}
-                                <p class="status invested">Investiu</p>
-                                <p class="level-info">Nível: {{ member.userlevel_set.first.level.name }}</p>
-                            {% else %}
-                                <p class="status not-invested">Não Investiu</p>
-                            {% endif %}
-                        </div>
+        <h3>Membros por Nível</h3>
+        
+        <div class="tabs">
+            <div class="tab-buttons">
+                {% for data in levels_data %}
+                    <button class="tab-button {% if forloop.first %}active{% endif %}" onclick="openTab(event, 'tab-{{ data.name|slugify }}')">
+                        {{ data.name }} ({{ data.count }})
+                    </button>
+                {% endfor %}
+            </div>
+
+            <div class="tab-content-container">
+                {% for data in levels_data %}
+                    <div id="tab-{{ data.name|slugify }}" class="tab-content {% if forloop.first %}active{% endif %}">
+                        {% if data.members %}
+                            <div class="team-grid">
+                                {% for member in data.members %}
+                                    <div class="member-card {% if data.name == 'Não Investido' %}not-invested-card{% else %}invested-card{% endif %}">
+                                        <p class="phone-number">{{ member.phone_number }}</p>
+                                        <p class="date-joined">Desde: {{ member.date_joined|date:"d/m/Y" }}</p>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="no-members-message">Nenhum membro neste nível.</p>
+                        {% endif %}
                     </div>
                 {% endfor %}
             </div>
-        {% else %}
-            <p class="no-members-message">Nenhum membro na sua equipa ainda.</p>
-        {% endif %}
+        </div>
     </div>
 </div>
 
 <style>
+    /* Estilos Adicionais/Ajustados para Interatividade */
     .page-header {
         text-align: center;
         padding: 20px 0;
@@ -65,22 +90,116 @@
         max-width: 90%;
         box-shadow: 0 4px 8px rgba(0,0,0,0.5);
     }
-    .team-summary, .invite-link-section, .team-members-list {
-        margin-bottom: 20px;
+    
+    /* Área de Resumo - Cartões */
+    .summary-area {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: space-around;
+        margin-bottom: 30px;
     }
-    .team-summary h3, .invite-link-section h3, .team-members-list h3 {
+    .summary-card {
+        background-color: #1a1a4d;
+        flex: 1 1 45%; /* Responsivo */
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        min-width: 150px;
+    }
+    .summary-card h3 {
+        color: #87CEEB;
+        font-size: 0.9rem;
+        margin-bottom: 5px;
+    }
+    .summary-card p {
+        color: #fff;
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin: 0;
+    }
+    .summary-card.subsidy p {
+        color: #FFD700; /* Dourado para subsídio */
+    }
+
+    /* Tabs (Abas) */
+    .tabs {
+        margin-top: 20px;
+    }
+    .tab-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        border-bottom: 2px solid #333;
+        margin-bottom: 15px;
+        gap: 5px;
+    }
+    .tab-button {
+        background-color: #333;
+        color: #fff;
+        border: none;
+        padding: 10px 15px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: background-color 0.3s, color 0.3s;
+        border-radius: 5px 5px 0 0;
+        margin-bottom: -2px; /* Sobrepõe a borda */
+        white-space: nowrap;
+    }
+    .tab-button.active {
+        background-color: #4CAF50;
+        color: #00004d;
+        font-weight: bold;
+        border-bottom: 2px solid #4CAF50;
+    }
+    .tab-content {
+        display: none;
+        padding: 10px 0;
+    }
+    .tab-content.active {
+        display: block;
+    }
+
+    /* Lista de Membros nas Abas */
+    .team-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 10px;
+    }
+    .member-card {
+        background-color: #1a1a4d;
+        border-radius: 8px;
+        padding: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        border-left: 5px solid;
+    }
+    .invested-card {
+        border-left-color: #4CAF50; /* Verde para investido */
+    }
+    .not-invested-card {
+        border-left-color: #f44336; /* Vermelho para não investido */
+    }
+    .member-card p {
+        margin: 0;
+        color: #fff;
+        font-size: 0.9rem;
+    }
+    .phone-number {
+        font-weight: bold;
+        color: #87CEEB;
+    }
+    .date-joined {
+        font-size: 0.8rem;
+        color: #ccc;
+        margin-top: 5px;
+    }
+
+    /* Outros estilos originais */
+    .invite-link-section h3, .team-members-list h3 {
         color: #4CAF50;
         border-bottom: 1px solid #333;
         padding-bottom: 10px;
         margin-bottom: 15px;
-    }
-    .team-summary p {
-        color: #fff;
-        font-size: 1.1rem;
-    }
-    .team-summary span {
-        font-weight: bold;
-        color: #87CEEB;
     }
     .invite-box {
         background-color: #1a1a4d;
@@ -103,54 +222,69 @@
         border-radius: 5px;
         cursor: pointer;
         font-weight: bold;
+        margin-left: 10px;
     }
-    .team-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        gap: 10px;
-    }
-    .member-card {
-        background-color: #1a1a4d;
-        border-radius: 8px;
-        padding: 10px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        border-left: 5px solid;
-    }
-    .member-card:has(.invested) {
-        border-left-color: #4CAF50;
-    }
-    .member-card:has(.not-invested) {
-        border-left-color: #f44336;
-    }
-    .member-info p {
-        margin: 0;
-        color: #fff;
-        font-size: 0.9rem;
-    }
-    .phone-number {
-        font-weight: bold;
-    }
-    .status {
-        font-size: 0.8rem;
-        padding: 2px 5px;
-        border-radius: 3px;
-        color: #fff;
-        display: inline-block;
-        margin-top: 5px;
-    }
-    .invested {
-        background-color: #4CAF50;
-    }
-    .not-invested {
-        background-color: #f44336;
-    }
-    .level-info {
-        font-size: 0.8rem;
+    .no-members-message {
         color: #ccc;
-        margin-top: 5px;
+        text-align: center;
+        padding: 20px;
+    }
+
+    /* Media query para telas menores */
+    @media (max-width: 600px) {
+        .summary-area {
+            flex-direction: column;
+            gap: 15px;
+        }
+        .summary-card {
+            flex: 1 1 100%;
+        }
+        .tab-button {
+            padding: 8px 10px;
+            font-size: 0.8rem;
+        }
+        .team-grid {
+             grid-template-columns: 1fr; /* Coluna única em mobile */
+        }
     }
 </style>
+
 <script>
+    // Função para Lógica das Abas
+    function openTab(evt, tabName) {
+        // Declaração de variáveis
+        let i, tabcontent, tabbuttons;
+
+        // Obtém todos os elementos com class="tab-content" e os esconde
+        tabcontent = document.getElementsByClassName("tab-content");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+            tabcontent[i].classList.remove("active");
+        }
+
+        // Obtém todos os elementos com class="tab-button" e remove a classe "active"
+        tabbuttons = document.getElementsByClassName("tab-button");
+        for (i = 0; i < tabbuttons.length; i++) {
+            tabbuttons[i].classList.remove("active");
+        }
+
+        // Mostra a aba atual e adiciona a classe "active" ao botão que a abriu
+        document.getElementById(tabName).style.display = "block";
+        document.getElementById(tabName).classList.add("active");
+        evt.currentTarget.classList.add("active");
+    }
+
+    // Abre a primeira aba por padrão ao carregar
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const firstTabButton = document.querySelector('.tab-button');
+        if (firstTabButton) {
+            // Simula o clique no primeiro botão
+            openTab({ currentTarget: firstTabButton }, firstTabButton.getAttribute('onclick').split("'")[1]);
+        }
+    });
+
+
+    // Lógica para Copiar Link
     document.querySelector('.copy-button').addEventListener('click', function(e) {
         const linkElement = document.getElementById('invite-link');
         const textToCopy = linkElement.innerText;
@@ -164,6 +298,7 @@
             })
             .catch(err => {
                 console.error('Falha ao copiar: ', err);
+                alert('Erro ao copiar o link. Tente copiar manualmente.');
             });
     });
 </script>
