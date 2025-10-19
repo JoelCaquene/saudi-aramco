@@ -4,62 +4,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro - SAUDI ARAMCO</title>
-    <link rel="stylesheet" href="{% static 'css/oil_styles.css' %}">
+    <title>Cadastro - saudi_aramco</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        /* CSS de Animação de Brilho (Neon/Glow) para o nome da empresa */
-        @keyframes neon-glow {
-            0%, 100% {
-                text-shadow: 
-                    0 0 10px #00ff88, /* Cor primária do brilho (Verde/Petróleo Refinado) */
-                    0 0 20px #00ff88,
-                    0 0 40px #00cc66,
-                    0 0 80px #00994d;
-                color: #ffffff;
-            }
-            50% {
-                text-shadow: 
-                    0 0 5px #00ff88, 
-                    0 0 10px #00ff88, 
-                    0 0 20px #00cc66;
-                color: #e0f8ff;
-            }
-        }
-
-        .company-name {
-            font-size: 2.5em;
-            font-weight: bold;
-            letter-spacing: 2px;
-            margin-bottom: 20px;
-            animation: neon-glow 1.5s ease-in-out infinite alternate;
-            text-transform: uppercase;
-        }
-    </style>
 </head>
 <body>
     <div class="background-image-container">
-        <img src="{% static 'images/background_cadastro.jpg' %}" alt="Refinaria de Petróleo" class="background-image">
+        <img src="{% static 'images/background_cadastro.jpg' %}" alt="Background" class="background-image">
         <div class="overlay"></div>
     </div>
     <div class="content">
-        
-        <div class="company-name">SAUDI ARAMCO</div>
-        
         <div class="header">
             <h2>Crie sua conta</h2>
         </div>
-        
         <form method="post" class="auth-form">
             {% csrf_token %}
             
-            {# Mensagens globais e erros que não estão associados a um campo específico #}
-            {% if messages %}
-                {% for message in messages %}
-                    <p class="django-message {{ message.tags }}">{{ message }}</p>
-                {% endfor %}
-            {% endif %}
-            
+            {# Este bloco exibirá erros que não estão associados a um campo específico #}
             {% if form.non_field_errors %}
                 <ul class="errorlist">
                     {% for error in form.non_field_errors %}
@@ -71,6 +32,7 @@
             <div class="form-group">
                 <label for="{{ form.phone_number.id_for_label }}">Número de Telefone:</label>
                 {{ form.phone_number }}
+                {# Adiciona a exibição de erros do campo phone_number #}
                 {% if form.phone_number.errors %}
                     <ul class="errorlist">
                         {% for error in form.phone_number.errors %}
@@ -82,10 +44,8 @@
             
             <div class="form-group">
                 <label for="{{ form.password.id_for_label }}">Senha:</label>
-                <div class="password-input-wrapper">
-                    {{ form.password }}
-                    <span class="password-toggle" onclick="togglePasswordVisibility('{{ form.password.id_for_label }}', this)"><i class="fas fa-eye"></i></span>
-                </div>
+                {{ form.password }}
+                {# Adiciona a exibição de erros do campo password #}
                 {% if form.password.errors %}
                     <ul class="errorlist">
                         {% for error in form.password.errors %}
@@ -97,10 +57,8 @@
             
             <div class="form-group">
                 <label for="{{ form.confirm_password.id_for_label }}">Confirme a Senha:</label>
-                <div class="password-input-wrapper">
-                    {{ form.confirm_password }}
-                    <span class="password-toggle" onclick="togglePasswordVisibility('{{ form.confirm_password.id_for_label }}', this)"><i class="fas fa-eye"></i></span>
-                </div>
+                {{ form.confirm_password }}
+                {# Adiciona a exibição de erros do campo confirm_password #}
                 {% if form.confirm_password.errors %}
                     <ul class="errorlist">
                         {% for error in form.confirm_password.errors %}
@@ -113,6 +71,7 @@
             <div class="form-group">
                 <label for="{{ form.invited_by_code.id_for_label }}">Código de Convite:</label>
                 {{ form.invited_by_code }}
+                {# Adiciona a exibição de erros do campo invited_by_code #}
                 {% if form.invited_by_code.errors %}
                     <ul class="errorlist">
                         {% for error in form.invited_by_code.errors %}
@@ -124,7 +83,6 @@
             
             <button type="submit" class="submit-button">Cadastrar</button>
         </form>
-        
         <div class="support-link">
             {% if whatsapp_link %}
                 <a href="{{ whatsapp_link }}" target="_blank">
@@ -136,27 +94,9 @@
                 </a>
             {% endif %}
         </div>
-        
         <div class="login-link">
             <a href="{% url 'login' %}">Já tem conta? Faça o login</a>
         </div>
     </div>
-
-    <script>
-        function togglePasswordVisibility(fieldId, toggleElement) {
-            const field = document.getElementById(fieldId);
-            const icon = toggleElement.querySelector('i');
-            
-            if (field.type === "password") {
-                field.type = "text";
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                field.type = "password";
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        }
-    </script>
 </body>
 </html>
