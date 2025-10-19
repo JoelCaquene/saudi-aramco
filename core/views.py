@@ -13,6 +13,23 @@ from datetime import date
 from .forms import RegisterForm, DepositForm, WithdrawalForm, BankDetailsForm
 from .models import PlatformSettings, CustomUser, Level, UserLevel, BankDetails, Deposit, Withdrawal, Task, PlatformBankDetails, Roulette, RouletteSettings
 
+# --- NOVA FUNÇÃO: CALCULA CLASSE E TAXA DE SUBSÍDIO ---
+def get_member_class(level_id):
+    """
+    Define a classe de investimento e a taxa de subsídio com base no ID do Nível.
+    Nível 1-3: Classe A (3%)
+    Nível 4-6: Classe B (5%)
+    Nível 7+: Classe C (7%)
+    """
+    if 1 <= level_id <= 3:
+        return 'Classe A', 0.03 # 3%
+    elif 4 <= level_id <= 6:
+        return 'Classe B', 0.05 # 5%
+    elif level_id >= 7:
+        return 'Classe C', 0.07 # 7%
+    return 'Sem Classe', 0.0
+# --- FIM DA NOVA FUNÇÃO ---
+
 # --- FUNÇÃO ATUALIZADA ---
 def home(request):
     if request.user.is_authenticated:
@@ -106,7 +123,7 @@ def user_logout(request):
     logout(request)
     return redirect('menu')
 
-# --- FUNÇÃO DE DEPÓSITO ATUALIZADA PARA O NOVO FLUXO ---
+# --- FUNÇÃO DE DEPÓSITO ORIGINAL ---
 @login_required
 def deposito(request):
     platform_bank_details = PlatformBankDetails.objects.all()
@@ -148,7 +165,7 @@ def deposito(request):
         'deposit_success': False, # Estado inicial
     }
     return render(request, 'deposito.html', context)
-# --- FIM DA FUNÇÃO DE DEPÓSITO ATUALIZADA ---
+# --- FIM DA FUNÇÃO DE DEPÓSITO ORIGINAL ---
 
 @login_required
 def approve_deposit(request, deposit_id):
@@ -227,6 +244,7 @@ def tarefa(request):
     }
     return render(request, 'tarefa.html', context)
 
+# --- FUNÇÃO process_task ATUALIZADA PARA DISTRIBUIÇÃO DE SUBSÍDIO ---
 @login_required
 @require_POST
 def process_task(request):
@@ -243,12 +261,34 @@ def process_task(request):
     if tasks_completed_today >= max_tasks:
         return JsonResponse({'success': False, 'message': 'Você já concluiu todas as tarefas diárias.'})
 
+    # 1. Processar a Tarefa do Usuário (Subordinado)
     earnings = active_level.level.daily_gain
     Task.objects.create(user=user, earnings=earnings)
     user.available_balance += earnings
     user.save()
 
+    # 2. Processar Subsídio para o Convidante (Líder da Equipe)
+    invited_by_user = user.invited_by
+    if invited_by_user and invited_by_user.is_active:
+        level_id = active_level.level.id
+        class_name, subsidy_rate = get_member_class(level_id) # Obter classe e taxa
+        
+        if subsidy_rate > 0:
+            subsidy_amount = earnings * subsidy_rate # Calcular subsídio com base nos ganhos da tarefa do subordinado
+            
+            # Adicionar o subsídio ao saldo do convidante
+            invited_by_user.subsidy_balance += subsidy_amount
+            invited_by_user.available_balance += subsidy_amount
+            # Assumindo que você adicionou 'team_subsidy_received' ao CustomUser no models.py
+            invited_by_user.team_subsidy_received += subsidy_amount 
+            invited_by_user.save()
+            
+            # Opcional: Adiciona uma mensagem de sucesso para o líder (se ele estiver logado)
+            # messages.success(request, f'Subsídio de {subsidy_amount:.2f} $ recebido de {class_name}.') 
+        # Se não houver taxa de subsídio (subsidy_rate é 0.0), nada acontece.
+
     return JsonResponse({'success': True, 'daily_gain': earnings})
+# --- FIM DA FUNÇÃO process_task ATUALIZADA ---
 
 @login_required
 def nivel(request):
@@ -288,17 +328,56 @@ def nivel(request):
     }
     return render(request, 'nivel.html', context)
 
+# --- FUNÇÃO equipa ATUALIZADA PARA CLASSIFICAÇÃO DE MEMBROS ---
 @login_required
 def equipa(request):
-    team_members = CustomUser.objects.filter(invited_by=request.user).order_by('-date_joined')
-    team_count = team_members.count()
+    user = request.user
+    team_members = CustomUser.objects.filter(invited_by=user).order_by('-date_joined')
+    
+    # 1. Preparar a estrutura para as classes A, B, C
+    team_classes = {
+        'A': {'members': [], 'task_earnings_total': 0.00, 'subsidy_total': 0.00},
+        'B': {'members': [], 'task_earnings_total': 0.00, 'subsidy_total': 0.00},
+        'C': {'members': [], 'task_earnings_total': 0.00, 'subsidy_total': 0.00},
+    }
+    
+    for member in team_members:
+        # Pega o nível ativo do membro (se houver)
+        member.active_level = UserLevel.objects.filter(user=member, is_active=True).first()
+        
+        if member.active_level:
+            level_id = member.active_level.level.id
+            class_name, subsidy_rate = get_member_class(level_id)
+            
+            member.class_name = class_name
+            member.subsidy_rate = subsidy_rate
+            
+            # Cálculo de ganhos de tarefas e subsídio total do membro
+            member_total_tasks_earnings = Task.objects.filter(user=member).aggregate(Sum('earnings'))['earnings__sum'] or 0.00
+            member.total_tasks_earnings = member_total_tasks_earnings
+            
+            # Subsídio que o LÍDER (request.user) recebeu deste membro
+            member.subsidy_received = member_total_tasks_earnings * subsidy_rate
+
+            class_key = class_name.split(' ')[1]
+            if class_key in team_classes:
+                team_classes[class_key]['members'].append(member)
+                # Acumula o subsídio total recebido desta classe
+                team_classes[class_key]['subsidy_total'] += member.subsidy_received
+    
+    # Adicionar o total de subsídio recebido da equipe ao contexto (se o campo foi adicionado)
+    # Se o campo não foi adicionado, isso resultará em erro. Remova esta linha se for o caso.
+    team_subsidy_received_total = getattr(user, 'team_subsidy_received', None) or 0.00
     
     context = {
         'team_members': team_members,
-        'team_count': team_count,
-        'invite_link': request.build_absolute_uri(reverse('cadastro')) + f'?invite={request.user.invite_code}',
+        'team_count': team_members.count(),
+        'invite_link': request.build_absolute_uri(reverse('cadastro')) + f'?invite={user.invite_code}',
+        'team_classes': team_classes, # NOVO: Dados das classes A, B, C
+        'team_subsidy_received_total': team_subsidy_received_total, # NOVO: Total geral
     }
     return render(request, 'equipa.html', context)
+# --- FIM DA FUNÇÃO equipa ATUALIZADA ---
 
 @login_required
 def roleta(request):
@@ -408,8 +487,11 @@ def renda(request):
 
     # A linha abaixo foi alterada para corrigir o status para 'Aprovado'
     total_withdrawals = Withdrawal.objects.filter(user=user, status='Aprovado').aggregate(Sum('amount'))['amount__sum'] or 0
-
-    total_income = (Task.objects.filter(user=user).aggregate(Sum('earnings'))['earnings__sum'] or 0) + user.subsidy_balance
+    
+    # Adicionar o Subsídio da Equipe ao total_income
+    team_subsidy_total = getattr(user, 'team_subsidy_received', 0)
+    
+    total_income = (Task.objects.filter(user=user).aggregate(Sum('earnings'))['earnings__sum'] or 0) + user.subsidy_balance + team_subsidy_total
     
     context = {
         'user': user,
@@ -418,6 +500,8 @@ def renda(request):
         'daily_income': daily_income,
         'total_withdrawals': total_withdrawals,
         'total_income': total_income,
+        # Você pode adicionar o subsídio da equipe como uma métrica separada aqui, se quiser
+        'team_subsidy_total': team_subsidy_total,
     }
     return render(request, 'renda.html', context)
     
