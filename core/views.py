@@ -15,13 +15,6 @@ from .forms import RegisterForm, DepositForm, WithdrawalForm, BankDetailsForm
 from .models import PlatformSettings, CustomUser, Level, UserLevel, BankDetails, Deposit, Withdrawal, Task, PlatformBankDetails, Roulette, RouletteSettings
 
 
-# --- FUNÇÃO AUXILIAR REMOVIDA: A lógica foi movida para Level.level_class_info no models.py ---
-# A função abaixo foi removida:
-# def get_level_class_info(level_id):
-#     ...
-# --- FIM DA FUNÇÃO AUXILIAR REMOVIDA ---
-
-
 # --- FUNÇÃO ATUALIZADA ---
 def home(request):
     if request.user.is_authenticated:
@@ -261,7 +254,7 @@ def process_task(request):
     invited_by_user = user.invited_by
     if invited_by_user:
         # Pega as informações de classe do nível do subordinado USANDO O MODEL
-        level_class, subsidy_rate = active_level.level.level_class_info # <--- ALTERAÇÃO AQUI
+        class_name, subsidy_rate = active_level.level.level_class_info # <--- USO DO MODEL REATORFADO
         
         if subsidy_rate > 0:
             # O subsídio é calculado sobre o ganho diário (earnings)
@@ -295,6 +288,7 @@ def nivel(request):
             request.user.level_active = True
             request.user.save()
             
+            # Lógica de bônus por convite de 1000$ (Se o convidante tem um nível ativo)
             invited_by_user = request.user.invited_by
             if invited_by_user and UserLevel.objects.filter(user=invited_by_user, is_active=True).exists():
                 invited_by_user.subsidy_balance += 1000
@@ -317,6 +311,7 @@ def nivel(request):
 @login_required
 def equipa(request):
     # Obtém membros diretos
+    # Adicionamos select_related('invited_by') para evitar consultas N+1
     team_members = CustomUser.objects.filter(invited_by=request.user).order_by('-date_joined')
     team_count = team_members.count()
     
@@ -328,8 +323,9 @@ def equipa(request):
     
     # Processa cada membro para determinar sua classe e obter dados de tarefa
     for member in team_members:
-        # Obtém o nível ativo para o membro
-        active_level = UserLevel.objects.filter(user=member, is_active=True).first()
+        # Obtém o nível ativo para o membro.
+        # É importante usar select_related('level') aqui para otimizar o acesso a active_level.level.level_class_info
+        active_level = UserLevel.objects.filter(user=member, is_active=True).select_related('level').first()
         
         # Obtém a última tarefa (pode ser None)
         last_task = Task.objects.filter(user=member).order_by('-completed_at').first()
@@ -338,17 +334,18 @@ def equipa(request):
             'phone_number': member.phone_number,
             'date_joined': member.date_joined,
             'is_active': member.level_active,
-            'level_name': 'N/A',  # Padrão
-            'level_id': 0,        # Padrão
-            'class_name': 'N/A',  # Padrão
-            'subsidy_rate': 0.0,  # Padrão
+            'level_name': 'N/A', 
+            'level_id': 0, 
+            'class_name': 'N/A', 
+            'subsidy_rate': 0.0, 
             'last_task_time': last_task.completed_at if last_task else None
         }
         
-        # === CORREÇÃO DE ERRO 500 E USO DO MODEL REATORFADO ===
-        if active_level:
+        # === CORREÇÃO DE ERRO 500 E USO DO MODEL REATORFADO (VERIFICAÇÃO ROBUSTA) ===
+        # O erro 500 acontece quando tentamos acessar active_level.level em um objeto None
+        if active_level and active_level.level:
             # Não precisamos mais chamar a função auxiliar, usamos a propriedade do Level
-            class_name, subsidy_rate = active_level.level.level_class_info # <--- ALTERAÇÃO AQUI
+            class_name, subsidy_rate = active_level.level.level_class_info 
             
             # Atualiza os dados do membro
             member_data['level_name'] = active_level.level.name
