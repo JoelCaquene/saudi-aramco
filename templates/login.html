@@ -24,6 +24,7 @@
             --cor-shadow-card: 0 10px 40px rgba(0, 0, 0, 0.1);
         }
 
+        /* ESTILOS BASE (PADRÃO PARA DESKTOPS E TELAS MAIORES) */
         body {
             font-family: 'Montserrat', sans-serif;
             margin: 0;
@@ -32,7 +33,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            min-height: 100vh; /* Mantido para telas grandes */
             background-color: var(--cor-fundo-principal);
             color: var(--cor-texto-escuro);
             position: relative;
@@ -42,12 +43,8 @@
         }
 
         @keyframes fundoBrilho {
-            0% {
-                background-color: #ffffff;
-            }
-            100% {
-                background-color: #f0f0f0;
-            }
+            0% { background-color: #ffffff; }
+            100% { background-color: #f0f0f0; }
         }
 
         body::before {
@@ -57,7 +54,6 @@
             left: 0;
             width: 100%;
             height: 100%;
-            /* Fundo sutil do Arquivo 1, adaptado com cor de petróleo */
             background-image: url("https://images.unsplash.com/photo-1579294247481-9b1695427d14?q=80&w=2070&auto=format&fit=crop");
             background-size: cover;
             background-position: center;
@@ -68,13 +64,13 @@
         }
 
         .title-platform {
-            /* Tamanho ajustado para caber em uma linha */
             font-size: 4em; 
             font-weight: 700;
-            color: var(--cor-destaque-2); /* Dourado */
+            color: var(--cor-destaque-2); 
             text-shadow: 0 0 20px var(--cor-destaque-2), 0 0 40px var(--cor-destaque-1);
             letter-spacing: 3px; 
             margin-bottom: 30px;
+            padding: 0 20px;
             position: relative;
             text-transform: uppercase;
             animation: piscaDourado 1s infinite alternate;
@@ -82,12 +78,8 @@
         }
 
         @keyframes piscaDourado {
-            0% {
-                text-shadow: 0 0 10px var(--cor-destaque-2), 0 0 20px var(--cor-destaque-1);
-            }
-            100% {
-                text-shadow: 0 0 25px var(--cor-destaque-2), 0 0 50px var(--cor-destaque-1);
-            }
+            0% { text-shadow: 0 0 10px var(--cor-destaque-2), 0 0 20px var(--cor-destaque-1); }
+            100% { text-shadow: 0 0 25px var(--cor-destaque-2), 0 0 50px var(--cor-destaque-1); }
         }
         
         /* Efeitos de pulso de luz (mantidos) */
@@ -121,18 +113,9 @@
         }
 
         @keyframes pulsoLuz {
-            0% {
-                transform: scale(0.5);
-                opacity: 0.8;
-            }
-            50% {
-                transform: scale(1.2);
-                opacity: 0;
-            }
-            100% {
-                transform: scale(0.5);
-                opacity: 0.8;
-            }
+            0% { transform: scale(0.5); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 0; }
+            100% { transform: scale(0.5); opacity: 0.8; }
         }
 
         .content {
@@ -151,14 +134,8 @@
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
         }
 
         h2 {
@@ -186,8 +163,7 @@
 
         .auth-form input {
             width: 100%;
-            /* Ajuste de padding para inputs mais finos */
-            padding: 14px 20px; 
+            padding: 14px 20px; /* Ajuste de padding para inputs mais finos */
             border: 2px solid var(--cor-borda-input);
             border-radius: 12px;
             background-color: #f9f9f9; 
@@ -197,17 +173,12 @@
             box-sizing: border-box;
         }
 
-        .auth-form input::placeholder {
-            color: var(--cor-placeholder);
-        }
-
         .auth-form input:focus {
             outline: none;
             border-color: var(--cor-destaque-2); 
             box-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
         }
 
-        /* Ícone de olho (opcional no login, mas mantido o estilo) */
         .toggle-password { 
             position: absolute; 
             right: 15px; 
@@ -232,8 +203,7 @@
 
         .submit-button { 
             width: 100%;
-             /* Ajuste de padding para botão mais fino */
-            padding: 18px 20px; 
+            padding: 18px 20px; /* Ajuste de padding para botão mais fino */
             border: none;
             border-radius: 12px;
             background: var(--cor-botao-cadastro);
@@ -250,18 +220,9 @@
         }
 
         @keyframes pulsoBotaoPetroleo {
-            0% {
-                transform: scale(1);
-                box-shadow: 0 8px 25px rgba(0, 128, 0, 0.4);
-            }
-            50% {
-                transform: scale(1.02);
-                box-shadow: 0 12px 35px rgba(255, 204, 0, 0.6);
-            }
-            100% {
-                transform: scale(1);
-                box-shadow: 0 8px 25px rgba(0, 128, 0, 0.4);
-            }
+            0% { transform: scale(1); box-shadow: 0 8px 25px rgba(0, 128, 0, 0.4); }
+            50% { transform: scale(1.02); box-shadow: 0 12px 35px rgba(255, 204, 0, 0.6); }
+            100% { transform: scale(1); box-shadow: 0 8px 25px rgba(0, 128, 0, 0.4); }
         }
 
         .submit-button:hover {
@@ -300,20 +261,74 @@
         }
 
         @keyframes moveParticula {
-            0% {
-                transform: translate(calc(var(--rand-x) * 100vw), calc(var(--rand-y) * 100vh));
-            }
-            100% {
-                transform: translate(calc(var(--rand-x-end) * 100vw), calc(var(--rand-y-end) * 100vh));
-            }
+            0% { transform: translate(calc(var(--rand-x) * 100vw), calc(var(--rand-y) * 100vh)); }
+            100% { transform: translate(calc(var(--rand-x-end) * 100vw), calc(var(--rand-y-end) * 100vh)); }
         }
 
         @keyframes fadeParticula {
-            0%, 100% {
-                opacity: 0;
+            0%, 100% { opacity: 0; }
+            50% { opacity: 0.5; }
+        }
+
+        /* ---------------------------------------------------------------------- */
+        /* MEDIA QUERY PARA TELAS PEQUENAS (MOBILE) */
+        /* ---------------------------------------------------------------------- */
+        @media (max-width: 600px) {
+            
+            body {
+                min-height: auto; /* Permite que o body se ajuste ao conteúdo */
+                padding-top: 20px; /* Adiciona um pequeno espaçamento no topo */
+                padding-bottom: 20px; /* Adiciona um pequeno espaçamento na base */
+                justify-content: flex-start; /* Alinha o conteúdo ao topo para caber mais */
             }
-            50% {
-                opacity: 0.5;
+
+            .title-platform {
+                font-size: 3em; /* Reduz o tamanho da fonte */
+                letter-spacing: 2px; 
+                margin-bottom: 20px; 
+                padding: 0 10px; 
+                white-space: normal;
+                text-align: center;
+            }
+            
+            /* Remove os pulsos de luz para economizar espaço e foco em mobile */
+            .title-platform::before, .title-platform::after {
+                display: none; 
+            }
+
+            .content {
+                padding: 30px 20px; /* Reduz o padding interno */
+                width: 95%; /* Aumenta a largura para usar quase toda a tela */
+                max-width: 100%; 
+                border-radius: 10px; /* Arredondamento menor */
+            }
+
+            h2 {
+                font-size: 2em; /* Reduz o tamanho do título "Acesse sua conta" */
+                margin-bottom: 20px;
+            }
+
+            .form-group {
+                margin-bottom: 20px; /* Reduz a margem entre campos */
+            }
+
+            .auth-form input {
+                padding: 12px 15px; /* Reduz um pouco o tamanho dos inputs */
+                font-size: 1em;
+            }
+            
+            .submit-button {
+                padding: 16px 15px; /* Reduz um pouco o tamanho do botão */
+                font-size: 1.1em;
+                letter-spacing: 1px;
+            }
+
+            .login-link a, .support-link a {
+                margin-top: 20px; /* Ajuste final de espaçamento */
+            }
+
+            .login-link a {
+                margin-top: 10px;
             }
         }
     </style>
@@ -390,7 +405,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Lógica do botão de alternar senha (implementação do Arquivo 1)
+            // Lógica do botão de alternar senha
             const setupPasswordToggle = (toggleId, inputId) => {
                 const toggle = document.querySelector(`#${toggleId}`);
                 const input = document.querySelector(`#${inputId}`);
@@ -405,10 +420,9 @@
                 }
             };
 
-            // Para o login, o campo de nome de usuário é 'username' e a senha é 'password'.
+            // Para o login, o campo de senha é 'password'
             const passwordInput = document.querySelector('input[name="password"]');
 
-            // Usamos o ID que o Django atribuiu ao campo de senha para garantir que o script funcione
             if(passwordInput) setupPasswordToggle('togglePassword', passwordInput.id);
 
             // Código para criar as partículas de energia/óleo
