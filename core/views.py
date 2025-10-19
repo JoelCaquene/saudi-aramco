@@ -21,31 +21,39 @@ def home(request):
     else:
         return redirect('cadastro')
 
-# --- FUNÇÃO CORRIGIDA ---
+# --- FUNÇÃO MENU CORRIGIDA PARA ROBUSTEZ (Evita 500 Internal Server Error) ---
 def menu(request):
+    # Inicializa variáveis com valores seguros
     user_level = None
-    levels = Level.objects.all().order_by('deposit_value')
-    
-    # Variáveis de Configuração da Plataforma (Inicializadas para evitar erros)
+    levels = [] 
     whatsapp_link = '#'
     app_download_link = '#'
 
-    if request.user.is_authenticated:
-        user_level = UserLevel.objects.filter(user=request.user, is_active=True).first()
-
+    # 1. Busca Níveis (Adiciona try/except em caso de falha no banco)
+    try:
+        levels = Level.objects.all().order_by('deposit_value')
+    except Exception:
+        levels = [] # Garante que levels é uma lista vazia se falhar
+    
+    # 2. Busca Configurações da Plataforma com Try-Except
     try:
         platform_settings = PlatformSettings.objects.first()
         if platform_settings:
-            whatsapp_link = platform_settings.whatsapp_link
-            
-            # --- CORREÇÃO DE ROBUSTEZ APLICADA AQUI ---
-            # Se o valor do banco de dados for None/vazio, usa '#' como fallback.
+            # Garante o uso de '#' se o campo for None/vazio no banco
+            whatsapp_link = platform_settings.whatsapp_link if platform_settings.whatsapp_link else '#'
             app_download_link = platform_settings.app_download_link if platform_settings.app_download_link else '#'
-            
-    except (PlatformSettings.DoesNotExist, AttributeError):
-        # Em caso de falha total ao buscar as configurações, mantém os defaults
-        whatsapp_link = '#'
-        app_download_link = '#'
+    except Exception:
+        # Em caso de erro (ex: tabela não existe), mantém os defaults ('#')
+        pass
+
+
+    # 3. Busca o Nível Ativo do Usuário (SÓ SE ESTIVER AUTENTICADO)
+    if request.user.is_authenticated:
+        try:
+            # Tenta encontrar o nível ativo. Se não encontrar, user_level será None.
+            user_level = UserLevel.objects.filter(user=request.user, is_active=True).first()
+        except Exception:
+            user_level = None 
 
 
     context = {
@@ -55,7 +63,7 @@ def menu(request):
         'app_download_link': app_download_link,
     }
     return render(request, 'menu.html', context)
-# --- FIM DA FUNÇÃO CORRIGIDA ---
+# --- FIM DA FUNÇÃO MENU CORRIGIDA ---
 
 def cadastro(request):
     invite_code_from_url = request.GET.get('invite', None)
