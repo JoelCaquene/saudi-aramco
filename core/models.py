@@ -35,8 +35,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     subsidy_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name="Saldo de Subsídios")
     level_active = models.BooleanField(default=False, verbose_name="Nível Ativo")
     roulette_spins = models.IntegerField(default=0, verbose_name="Giros da Roleta")
-    # --- NOVO CAMPO: Subsidio da Equipa ---
-    team_subsidy_received = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name="Subsídio da Equipa Recebido")
 
     USERNAME_FIELD = 'phone_number'
     REQUIRED_FIELDS = []

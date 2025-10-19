@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Minha Equipa{% endblock %}
+{% block title %}Equipa{% endblock %}
 
 {% block content %}
 <div class="page-header">
@@ -12,7 +12,6 @@
     <div class="team-summary">
         <h3>Visão Geral</h3>
         <p>Número de Membros: <span>{{ team_count }}</span></p>
-        <p>Subsídio Total da Equipa: <span class="subsidy-total">{{ team_subsidy_received_total|floatformat:2 }} $</span></p>
     </div>
 
     <div class="invite-link-section">
@@ -24,147 +23,137 @@
     </div>
 
     <div class="team-members-list">
-        <h3>Membros da Equipa por Classe</h3>
-
-        <div class="tabs">
-            <button class="tab-button" onclick="openClass(event, 'A')">Classe A (3%)</button>
-            <button class="tab-button" onclick="openClass(event, 'B')">Classe B (5%)</button>
-            <button class="tab-button" onclick="openClass(event, 'C')">Classe C (7%)</button>
-            <button class="tab-button non-invested-tab" onclick="openClass(event, 'NonInvested')">Inativos ({{ non_invested_members|length }})</button>
-        </div>
-
-        {% for key, data in team_classes.items %}
-        {% with class_members=data.members class_subsidy_total=data.subsidy_total %}
-        
-        {# O "display:none" é removido pelo JS quando o tab é clicado. #}
-        <div id="Class-{{ key }}" class="tab-content" style="display:none;">
-            <p class="class-summary">Membros Ativos: <strong>{{ class_members|length }}</strong></p>
-            <p class="class-summary">Subsídio Recebido desta Classe: <strong>{{ class_subsidy_total|floatformat:2 }} $</strong></p>
-            
-            {% if class_members %}
-                <div class="team-grid">
-                    {% for member in class_members %}
-                        <div class="member-card class-{{ key }}">
-                            <div class="member-info">
-                                <p class="phone-number">{{ member.phone_number }}</p>
-                                <p class="status invested">Ativo ({{ member.class_name }})</p>
-                                <p class="level-info">Nível: {{ member.active_level.level.name }}</p>
-                                <p class="task-earning-info">Ganhos em Tarefas: {{ member.total_tasks_earnings|floatformat:2 }} $</p>
-                                <p class="subsidy-info">Seu Subsídio: {{ member.subsidy_received|floatformat:2 }} $</p>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <p class="no-members-message">Nenhum membro na {{ key }} Classe ainda.</p>
-            {% endif %}
-        </div>
-        {% endwith %}
-        {% endfor %}
-        
-        {# ABA OTIMIZADA PARA MEMBROS INATIVOS #}
-        <div id="Class-NonInvested" class="tab-content" style="display:none;">
-            <p class="class-summary">Membros Cadastrados, mas Inativos: <strong>{{ non_invested_members|length }}</strong></p>
+        <h3>Membros da Equipa</h3>
+        {% if team_members %}
             <div class="team-grid">
-                {% for member in non_invested_members %}
-                    <div class="member-card class-none">
+                {% for member in team_members %}
+                    <div class="member-card">
                         <div class="member-info">
                             <p class="phone-number">{{ member.phone_number }}</p>
-                            <p class="status not-invested">Não Investiu</p>
+                            {% if member.level_active %}
+                                <p class="status invested">Investiu</p>
+                                <p class="level-info">Nível: {{ member.userlevel_set.first.level.name }}</p>
+                            {% else %}
+                                <p class="status not-invested">Não Investiu</p>
+                            {% endif %}
                         </div>
                     </div>
-                {% empty %}
-                    <p class="no-members-message">Nenhum membro cadastrado sem nível ativo.</p>
                 {% endfor %}
             </div>
-        </div>
-        
+        {% else %}
+            <p class="no-members-message">Nenhum membro na sua equipa ainda.</p>
+        {% endif %}
     </div>
 </div>
 
 <style>
-    /* Estilos existentes */
-    .page-header { text-align: center; padding: 20px 0; background-color: #00004d; border-bottom: 2px solid #4CAF50; margin-bottom: 20px; }
-    .page-header h1 { color: #fff; }
-    .team-container { background-color: #00004d; padding: 20px; border-radius: 10px; margin: 20px auto; max-width: 90%; box-shadow: 0 4px 8px rgba(0,0,0,0.5); }
-    .team-summary, .invite-link-section, .team-members-list { margin-bottom: 20px; }
-    .team-summary h3, .invite-link-section h3, .team-members-list h3 { color: #4CAF50; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 15px; }
-    .team-summary p { color: #fff; font-size: 1.1rem; }
-    .team-summary span { font-weight: bold; color: #87CEEB; }
-    .subsidy-total { color: #FFD700 !important; } /* Cor para o novo total de subsídio */
-    .invite-box { background-color: #1a1a4d; padding: 10px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; }
-    .invite-box span { font-size: 0.9rem; color: #ccc; word-break: break-all; }
-    .copy-button { background-color: #87CEEB; color: #000; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-    .team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
-    .member-card { background-color: #1a1a4d; border-radius: 8px; padding: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); border-left: 5px solid; }
-    
-    /* Estilos de Classe A, B, C */
-    .member-card.class-A { border-left-color: #4CAF50; } /* Verde - A */
-    .member-card.class-B { border-left-color: #FFD700; } /* Amarelo - B */
-    .member-card.class-C { border-left-color: #FF4500; } /* Laranja/Vermelho - C */
-    .member-card.class-none { border-left-color: #f44336; } /* Vermelho - Não Investido */
-
-    .member-info p { margin: 0; color: #fff; font-size: 0.9rem; }
-    .phone-number { font-weight: bold; }
-    .status { font-size: 0.8rem; padding: 2px 5px; border-radius: 3px; color: #fff; display: inline-block; margin-top: 5px; }
-    .invested { background-color: #4CAF50; }
-    .not-invested { background-color: #f44336; }
-    .level-info, .task-earning-info, .subsidy-info { font-size: 0.8rem; color: #ccc; margin-top: 5px; }
-    .subsidy-info { font-weight: bold; color: #87CEEB; }
-    .no-members-message { color: #ccc; padding: 10px 0; }
-    .class-summary { color: #fff; font-size: 1rem; margin-top: 5px; }
-    
-    /* Estilos das ABAS/SEPARADORES */
-    .tabs { overflow: hidden; border-bottom: 1px solid #333; margin-bottom: 10px; display: flex; flex-wrap: wrap; }
-    .tab-button {
-        background-color: #1a1a4d;
-        color: #fff;
-        flex-grow: 1; 
-        min-width: 24%;
-        border: none;
-        outline: none;
-        cursor: pointer;
-        padding: 10px 5px;
-        transition: 0.3s;
-        font-size: 0.9rem;
-        border-right: 1px solid #333;
+    .page-header {
         text-align: center;
+        padding: 20px 0;
+        background-color: #00004d;
+        border-bottom: 2px solid #4CAF50;
+        margin-bottom: 20px;
     }
-    .tab-button:last-child { border-right: none; }
-    .tab-button:hover { background-color: #333366; }
-    .tab-button.active { background-color: #4CAF50; color: #000; font-weight: bold; }
-    .non-invested-tab { color: #f44336; }
-    .tab-content { padding: 15px 0; border-top: none; }
+    .page-header h1 {
+        color: #fff;
+    }
+    .team-container {
+        background-color: #00004d;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px auto;
+        max-width: 90%;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+    }
+    .team-summary, .invite-link-section, .team-members-list {
+        margin-bottom: 20px;
+    }
+    .team-summary h3, .invite-link-section h3, .team-members-list h3 {
+        color: #4CAF50;
+        border-bottom: 1px solid #333;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+    }
+    .team-summary p {
+        color: #fff;
+        font-size: 1.1rem;
+    }
+    .team-summary span {
+        font-weight: bold;
+        color: #87CEEB;
+    }
+    .invite-box {
+        background-color: #1a1a4d;
+        padding: 10px;
+        border-radius: 5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .invite-box span {
+        font-size: 0.9rem;
+        color: #ccc;
+        word-break: break-all;
+    }
+    .copy-button {
+        background-color: #87CEEB;
+        color: #000;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+    .team-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 10px;
+    }
+    .member-card {
+        background-color: #1a1a4d;
+        border-radius: 8px;
+        padding: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        border-left: 5px solid;
+    }
+    .member-card:has(.invested) {
+        border-left-color: #4CAF50;
+    }
+    .member-card:has(.not-invested) {
+        border-left-color: #f44336;
+    }
+    .member-info p {
+        margin: 0;
+        color: #fff;
+        font-size: 0.9rem;
+    }
+    .phone-number {
+        font-weight: bold;
+    }
+    .status {
+        font-size: 0.8rem;
+        padding: 2px 5px;
+        border-radius: 3px;
+        color: #fff;
+        display: inline-block;
+        margin-top: 5px;
+    }
+    .invested {
+        background-color: #4CAF50;
+    }
+    .not-invested {
+        background-color: #f44336;
+    }
+    .level-info {
+        font-size: 0.8rem;
+        color: #ccc;
+        margin-top: 5px;
+    }
 </style>
-
 <script>
-    // Lógica para as ABAS Interativas
-    function openClass(evt, className) {
-        var i, tabcontent, tablinks;
-        
-        // Esconde todo o conteúdo da aba
-        tabcontent = document.getElementsByClassName("tab-content");
-        for (i = 0; i < tabcontent.length; i++) {
-            tabcontent[i].style.display = "none";
-        }
-        
-        // Remove a classe "active" de todos os botões de aba
-        tablinks = document.getElementsByClassName("tab-button");
-        for (i = 0; i < tablinks.length; i++) {
-            tablinks[i].className = tablinks[i].className.replace(" active", "");
-        }
-        
-        // Mostra a aba atual (usando o ID Class-A, Class-B, etc.)
-        document.getElementById('Class-' + className).style.display = "block";
-        // Adiciona a classe "active" ao botão que a abriu
-        evt.currentTarget.className += " active";
-    }
-
-    // Lógica existente de Copiar
     document.querySelector('.copy-button').addEventListener('click', function(e) {
         const linkElement = document.getElementById('invite-link');
         const textToCopy = linkElement.innerText;
-        
         navigator.clipboard.writeText(textToCopy)
             .then(() => {
                 const originalText = e.target.innerText;
@@ -176,19 +165,6 @@
             .catch(err => {
                 console.error('Falha ao copiar: ', err);
             });
-    });
-
-    // Abrir a Classe A por padrão (Interatividade na inicialização)
-    document.addEventListener("DOMContentLoaded", function() {
-        // Encontra o botão da Classe A
-        const tabA = document.querySelector('.tab-button[onclick*="openClass(event, \'A\')"]');
-        const contentA = document.getElementById('Class-A');
-        
-        // Ativa o botão e mostra o conteúdo, simulando o clique
-        if (tabA && contentA) {
-            tabA.className += " active";
-            contentA.style.display = "block";
-        }
     });
 </script>
 {% endblock %}
