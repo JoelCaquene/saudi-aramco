@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Equipa{% endblock %}
+{% block title %}Minha Equipa{% endblock %}
 
 {% block content %}
 <div class="page-header">
@@ -27,16 +27,17 @@
         <h3>Membros da Equipa por Classe</h3>
 
         <div class="tabs">
-            <button class="tab-button active" onclick="openClass(event, 'A')">Classe A (3%)</button>
+            <button class="tab-button" onclick="openClass(event, 'A')">Classe A (3%)</button>
             <button class="tab-button" onclick="openClass(event, 'B')">Classe B (5%)</button>
             <button class="tab-button" onclick="openClass(event, 'C')">Classe C (7%)</button>
-            <button class="tab-button non-invested-tab" onclick="openClass(event, 'NonInvested')">Não Investiu</button>
+            <button class="tab-button non-invested-tab" onclick="openClass(event, 'NonInvested')">Inativos ({{ non_invested_members|length }})</button>
         </div>
 
         {% for key, data in team_classes.items %}
         {% with class_members=data.members class_subsidy_total=data.subsidy_total %}
         
-        <div id="Class-{{ key }}" class="tab-content" style="display:{% if key == 'A' %}block{% else %}none{% endif %};">
+        {# O "display:none" é removido pelo JS quando o tab é clicado. #}
+        <div id="Class-{{ key }}" class="tab-content" style="display:none;">
             <p class="class-summary">Membros Ativos: <strong>{{ class_members|length }}</strong></p>
             <p class="class-summary">Subsídio Recebido desta Classe: <strong>{{ class_subsidy_total|floatformat:2 }} $</strong></p>
             
@@ -46,7 +47,7 @@
                         <div class="member-card class-{{ key }}">
                             <div class="member-info">
                                 <p class="phone-number">{{ member.phone_number }}</p>
-                                <p class="status invested">Investiu ({{ member.class_name }})</p>
+                                <p class="status invested">Ativo ({{ member.class_name }})</p>
                                 <p class="level-info">Nível: {{ member.active_level.level.name }}</p>
                                 <p class="task-earning-info">Ganhos em Tarefas: {{ member.total_tasks_earnings|floatformat:2 }} $</p>
                                 <p class="subsidy-info">Seu Subsídio: {{ member.subsidy_received|floatformat:2 }} $</p>
@@ -61,29 +62,22 @@
         {% endwith %}
         {% endfor %}
         
-        {% with non_invested_members=team_members|default_if_none:'' %}
+        {# ABA OTIMIZADA PARA MEMBROS INATIVOS #}
         <div id="Class-NonInvested" class="tab-content" style="display:none;">
-            {% comment %}
-                Itera sobre TODOS os membros da equipe e filtra os que NÃO têm active_level
-                (que é uma propriedade adicionada no views.py, mas só existe se o membro tiver um nível ativo)
-            {% endcomment %}
-            <p class="class-summary">Membros Cadastrados, mas Inativos:</p>
+            <p class="class-summary">Membros Cadastrados, mas Inativos: <strong>{{ non_invested_members|length }}</strong></p>
             <div class="team-grid">
                 {% for member in non_invested_members %}
-                    {% if not member.active_level %}
-                        <div class="member-card class-none">
-                            <div class="member-info">
-                                <p class="phone-number">{{ member.phone_number }}</p>
-                                <p class="status not-invested">Não Investiu</p>
-                            </div>
+                    <div class="member-card class-none">
+                        <div class="member-info">
+                            <p class="phone-number">{{ member.phone_number }}</p>
+                            <p class="status not-invested">Não Investiu</p>
                         </div>
-                    {% endif %}
+                    </div>
                 {% empty %}
-                    <p class="no-members-message">Todos os seus membros estão ativos!</p>
+                    <p class="no-members-message">Nenhum membro cadastrado sem nível ativo.</p>
                 {% endfor %}
             </div>
         </div>
-        {% endwith %}
         
     </div>
 </div>
@@ -125,8 +119,8 @@
     .tab-button {
         background-color: #1a1a4d;
         color: #fff;
-        flex-grow: 1; /* Permite que os botões se expandam */
-        min-width: 24%; /* Garante que os 4 botões caibam em uma linha razoável */
+        flex-grow: 1; 
+        min-width: 24%;
         border: none;
         outline: none;
         cursor: pointer;
@@ -160,8 +154,9 @@
             tablinks[i].className = tablinks[i].className.replace(" active", "");
         }
         
-        // Mostra a aba atual e adiciona a classe "active" ao botão que a abriu
+        // Mostra a aba atual (usando o ID Class-A, Class-B, etc.)
         document.getElementById('Class-' + className).style.display = "block";
+        // Adiciona a classe "active" ao botão que a abriu
         evt.currentTarget.className += " active";
     }
 
@@ -183,12 +178,16 @@
             });
     });
 
-    // Abrir a Classe A por padrão
+    // Abrir a Classe A por padrão (Interatividade na inicialização)
     document.addEventListener("DOMContentLoaded", function() {
-        // Encontra o primeiro botão (que deve ser a Classe A) e simula o clique
-        const firstTab = document.getElementsByClassName("tab-button")[0];
-        if (firstTab) {
-            firstTab.click();
+        // Encontra o botão da Classe A
+        const tabA = document.querySelector('.tab-button[onclick*="openClass(event, \'A\')"]');
+        const contentA = document.getElementById('Class-A');
+        
+        // Ativa o botão e mostra o conteúdo, simulando o clique
+        if (tabA && contentA) {
+            tabA.className += " active";
+            contentA.style.display = "block";
         }
     });
 </script>

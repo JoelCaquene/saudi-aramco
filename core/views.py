@@ -108,6 +108,7 @@ def user_login(request):
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
+            authenticate(request, user)
             login(request, user)
             return redirect('menu')
     else:
@@ -335,7 +336,7 @@ def nivel(request):
     }
     return render(request, 'nivel.html', context)
 
-# --- FUNÇÃO equipa ATUALIZADA PARA CLASSIFICAÇÃO DE MEMBROS ---
+# --- FUNÇÃO equipa ATUALIZADA (CORREÇÃO DE ERRO 500) ---
 @login_required
 def equipa(request):
     user = request.user
@@ -354,14 +355,18 @@ def equipa(request):
         member.active_level = UserLevel.objects.filter(user=member, is_active=True).first()
         
         # 2. Dados necessários para o template
-        member.total_tasks_earnings = Task.objects.filter(user=member).aggregate(
-            total=Sum('earnings', output_field=DecimalField())
-        )['total'] or Decimal('0.00')
         
-        # O campo subsidy_received no template refere-se ao subsídio que o LÍDER (request.user)
-        # recebeu deste membro. No seu sistema, este cálculo é feito e o total acumulado
-        # na conta do líder. Para esta exibição, faremos uma aproximação:
-        # Nota: O cálculo exato exigiria iterar sobre as Tarefas *deste* membro.
+        # CORREÇÃO CRÍTICA: Remove output_field=DecimalField() para evitar erro 500
+        member_earnings_agg = Task.objects.filter(user=member).aggregate(total=Sum('earnings'))
+        
+        # Pega o resultado da agregação e garante que é um Decimal, se não for None
+        total_earnings = member_earnings_agg.get('total')
+        if total_earnings is None:
+            member.total_tasks_earnings = Decimal('0.00')
+        else:
+            # Converte para Decimal por segurança
+            member.total_tasks_earnings = Decimal(str(total_earnings)) 
+        
         
         if member.active_level:
             level_id = member.active_level.level.id
@@ -379,7 +384,6 @@ def equipa(request):
                 team_classes[class_key]['subsidy_total'] += member.subsidy_received
         else:
              # Membro sem nível ativo, não é incluído nas classes A/B/C
-             # Mas fica em 'team_members' para a aba 'Não Investiu'
              member.class_name = 'Sem Classe'
              member.subsidy_received = Decimal('0.00')
 
