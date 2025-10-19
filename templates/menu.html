@@ -30,18 +30,8 @@
         </div>
     </div>
 </div>
-
 <header class="menu-header">
-    {# NOVO BLOCO: ÍCONE DE DOWNLOAD À ESQUERDA #}
-    {% if app_download_link %}
-        <a href="{{ app_download_link }}" class="download-app-link">
-            <i class="fas fa-check-circle download-verified-icon"></i> 
-            <i class="fas fa-download download-icon"></i>
-        </a>
-    {% endif %}
-
     <h1 class="platform-name">Saudi Aramco</h1>
-
     {% if whatsapp_link %}
         <a href="{{ whatsapp_link }}" class="support-button">
             <i class="fa-brands fa-whatsapp"></i> 
@@ -291,85 +281,10 @@
         background-color: #45a049;
     }
 
-    /* ESTILOS DO HEADER - CHAVE PARA O LAYOUT */
-    .menu-header {
-        display: flex;
-        justify-content: space-between; /* Espaça os elementos */
-        align-items: center; /* Alinha verticalmente */
-        padding: 10px 15px;
-        background-color: #0d1a2f;
-        color: #4CAF50;
-        border-bottom: 1px solid #1a1a4d;
-        position: sticky; /* Mantém o header no topo */
-        top: 0;
-        z-index: 50; /* Garante que fique acima de outros elementos */
-    }
-
-    .platform-name {
-        font-size: 1.2rem;
-        font-weight: bold;
-        margin: 0;
-        color: #4CAF50; /* Cor do texto central (Saudi Aramco) */
-        flex-grow: 1; /* Permite que o nome ocupe o espaço central */
-        text-align: center;
-    }
-
-    /* ESTILOS PARA O BOTÃO/LINK DE DOWNLOAD */
-    .download-app-link {
-        font-size: 1.4rem; /* Tamanho do ícone */
-        color: #87CEEB; /* Cor para o link de download (pode ser ajustada) */
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-        padding: 0 5px; /* Adiciona um pouco de espaço */
-    }
-
-    .download-verified-icon {
-        color: #4CAF50; /* Cor verde para o "check" */
-        font-size: 1rem; /* Tamanho do ícone de verificação */
-        margin-right: -5px; /* Move para mais perto do ícone de download */
-        position: relative;
-        top: -5px;
-        right: -5px;
-    }
-
-    .download-icon {
-        font-size: 1.4rem;
-        color: #87CEEB; 
-        transition: color 0.3s;
-    }
-    .download-app-link:hover .download-icon {
-        color: #00BCD4;
-    }
-
-    /* ESTILOS PARA O BOTÃO DE APOIO (WHATSAPP) */
-    .support-button {
-        display: flex;
-        align-items: center;
-        text-decoration: none;
-        color: #fff;
-        font-size: 0.8rem;
-        background-color: #4CAF50;
-        padding: 5px 8px;
-        border-radius: 15px;
-        transition: background-color 0.3s;
-        margin-left: 10px;
-    }
-
-    .support-button i {
-        font-size: 1rem;
-        margin-right: 5px;
-    }
-
-    .support-button:hover {
-        background-color: #388E3C;
-    }
-
-
-    /* Estilos para o Grid de Botões (MENU) - MANTIDOS */
+    /* Estilos para o Grid de Botões (MENU) - AJUSTADO PARA 4 COLUNAS */
     .buttons-grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr); 
+        grid-template-columns: repeat(4, 1fr); /* Mantido em 4 colunas */
         gap: 10px;
         padding: 10px;
         margin: 15px 0;
@@ -410,7 +325,7 @@
     }
 
 
-    /* ESTILOS PARA O BLOCO DE TEXTO - MANTIDOS */
+    /* ESTILOS PARA O BLOCO DE TEXTO */
     .custom-section {
         text-align: left;
         margin-top: 20px;
@@ -428,6 +343,7 @@
         border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
     }
     
+    /* ESTILOS DA IMAGEM EM TELA CHEIA (MANTIDOS E AJUSTADOS O NOME DA CLASSE) */
     .full-width-image-container {
         margin-bottom: 15px;
         border-radius: 8px;

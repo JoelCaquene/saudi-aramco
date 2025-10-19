@@ -13,57 +13,33 @@ from datetime import date
 from .forms import RegisterForm, DepositForm, WithdrawalForm, BankDetailsForm
 from .models import PlatformSettings, CustomUser, Level, UserLevel, BankDetails, Deposit, Withdrawal, Task, PlatformBankDetails, Roulette, RouletteSettings
 
-# --- FUNÇÕES BÁSICAS ---
-
+# --- FUNÇÃO ATUALIZADA ---
 def home(request):
     if request.user.is_authenticated:
         return redirect('menu')
     else:
         return redirect('cadastro')
+# --- FIM DA FUNÇÃO ATUALIZADA ---
 
-# --- FUNÇÃO MENU CORRIGIDA PARA ROBUSTEZ (Evita 500 Internal Server Error) ---
 def menu(request):
-    # Inicializa variáveis com valores seguros
     user_level = None
-    levels = [] 
-    whatsapp_link = '#'
-    app_download_link = '#'
+    levels = Level.objects.all().order_by('deposit_value')
 
-    # 1. Busca Níveis (Adiciona try/except em caso de falha no banco)
-    try:
-        levels = Level.objects.all().order_by('deposit_value')
-    except Exception:
-        levels = [] # Garante que levels é uma lista vazia se falhar
-    
-    # 2. Busca Configurações da Plataforma com Try-Except
+    if request.user.is_authenticated:
+        user_level = UserLevel.objects.filter(user=request.user, is_active=True).first()
+
     try:
         platform_settings = PlatformSettings.objects.first()
-        if platform_settings:
-            # Garante o uso de '#' se o campo for None/vazio no banco
-            whatsapp_link = platform_settings.whatsapp_link if platform_settings.whatsapp_link else '#'
-            app_download_link = platform_settings.app_download_link if platform_settings.app_download_link else '#'
-    except Exception:
-        # Em caso de erro (ex: tabela não existe), mantém os defaults ('#')
-        pass
-
-
-    # 3. Busca o Nível Ativo do Usuário (SÓ SE ESTIVER AUTENTICADO)
-    if request.user.is_authenticated:
-        try:
-            # Tenta encontrar o nível ativo. Se não encontrar, user_level será None.
-            user_level = UserLevel.objects.filter(user=request.user, is_active=True).first()
-        except Exception:
-            user_level = None 
-
+        whatsapp_link = platform_settings.whatsapp_link
+    except (PlatformSettings.DoesNotExist, AttributeError):
+        whatsapp_link = '#'
 
     context = {
         'user_level': user_level,
         'levels': levels,
         'whatsapp_link': whatsapp_link,
-        'app_download_link': app_download_link,
     }
     return render(request, 'menu.html', context)
-# --- FIM DA FUNÇÃO MENU CORRIGIDA ---
 
 def cadastro(request):
     invite_code_from_url = request.GET.get('invite', None)
@@ -90,8 +66,7 @@ def cadastro(request):
             return redirect('menu')
         else:
             try:
-                platform_settings = PlatformSettings.objects.first()
-                whatsapp_link = platform_settings.whatsapp_link if platform_settings else '#'
+                whatsapp_link = PlatformSettings.objects.first().whatsapp_link
             except (PlatformSettings.DoesNotExist, AttributeError):
                 whatsapp_link = '#'
             return render(request, 'cadastro.html', {'form': form, 'whatsapp_link': whatsapp_link})
@@ -103,8 +78,7 @@ def cadastro(request):
             form = RegisterForm()
     
     try:
-        platform_settings = PlatformSettings.objects.first()
-        whatsapp_link = platform_settings.whatsapp_link if platform_settings else '#'
+        whatsapp_link = PlatformSettings.objects.first().whatsapp_link
     except (PlatformSettings.DoesNotExist, AttributeError):
         whatsapp_link = '#'
 
@@ -115,15 +89,13 @@ def user_login(request):
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
-            authenticate(request, user)
             login(request, user)
             return redirect('menu')
     else:
         form = AuthenticationForm()
 
     try:
-        platform_settings = PlatformSettings.objects.first()
-        whatsapp_link = platform_settings.whatsapp_link if platform_settings else '#'
+        whatsapp_link = PlatformSettings.objects.first().whatsapp_link
     except (PlatformSettings.DoesNotExist, AttributeError):
         whatsapp_link = '#'
 
@@ -138,10 +110,7 @@ def user_logout(request):
 @login_required
 def deposito(request):
     platform_bank_details = PlatformBankDetails.objects.all()
-    
-    # Lógica robusta para instruções de depósito
-    platform_settings = PlatformSettings.objects.first()
-    deposit_instruction = platform_settings.deposit_instruction if platform_settings else 'Instruções de depósito não disponíveis.'
+    deposit_instruction = PlatformSettings.objects.first().deposit_instruction if PlatformSettings.objects.first() else 'Instruções de depósito não disponíveis.'
     
     # Busca todos os valores de depósito dos Níveis para a Etapa 2
     level_deposits = Level.objects.all().values_list('deposit_value', flat=True).distinct().order_by('deposit_value')
@@ -199,8 +168,7 @@ def approve_deposit(request, deposit_id):
 
 @login_required
 def saque(request):
-    platform_settings = PlatformSettings.objects.first()
-    withdrawal_instruction = platform_settings.withdrawal_instruction if platform_settings else 'Instruções de saque não disponíveis.'
+    withdrawal_instruction = PlatformSettings.objects.first().withdrawal_instruction if PlatformSettings.objects.first() else 'Instruções de saque não disponíveis.'
     
     withdrawal_records = Withdrawal.objects.filter(user=request.user).order_by('-created_at')
     
@@ -297,21 +265,16 @@ def nivel(request):
         
         if request.user.available_balance >= level_to_buy.deposit_value:
             request.user.available_balance -= level_to_buy.deposit_value
-            # Desativa níveis anteriores (opcional, dependendo da sua regra de negócio)
-            # UserLevel.objects.filter(user=request.user, is_active=True).update(is_active=False) 
-            
             UserLevel.objects.create(user=request.user, level=level_to_buy, is_active=True)
             request.user.level_active = True
             request.user.save()
             
-            # Bônus para o convidante
             invited_by_user = request.user.invited_by
             if invited_by_user and UserLevel.objects.filter(user=invited_by_user, is_active=True).exists():
                 invited_by_user.subsidy_balance += 11
                 invited_by_user.available_balance += 11
                 invited_by_user.save()
-                # Não é o ideal exibir a mensagem para o usuário que comprou o nível, mas mantém a lógica existente
-                # messages.success(request, f'Parabéns! Você recebeu 11 $ de subsídio por convite de {request.user.phone_number}.')
+                messages.success(request, f'Parabéns! Você recebeu 11 $ de subsídio por convite de {request.user.phone_number}.')
 
             messages.success(request, f'Você comprou o nível {level_to_buy.name} com sucesso!')
         else:

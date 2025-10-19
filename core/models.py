@@ -60,14 +60,6 @@ class PlatformSettings(models.Model):
         verbose_name="Link do grupo de apoio do WhatsApp",
         help_text="O link para o grupo de WhatsApp que aparecerá no botão de apoio."
     )
-    # --- NOVO CAMPO ADICIONADO AQUI ---
-    app_download_link = models.URLField(
-        max_length=200, 
-        default='#',
-        verbose_name="Link de Download do App (APK)",
-        help_text="A URL direta para o APK ou para a página de download do aplicativo."
-    )
-    # --- FIM DO NOVO CAMPO ---
     history_text = models.TextField(
         verbose_name="Texto da página 'Sobre'",
         help_text="O histórico da plataforma."
