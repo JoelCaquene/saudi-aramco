@@ -1,162 +1,234 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro - SAUDI ARAMCO</title>
-    <link rel="stylesheet" href="{% static 'css/oil_styles.css' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        /* CSS de Animação de Brilho (Neon/Glow) para o nome da empresa */
-        @keyframes neon-glow {
-            0%, 100% {
-                text-shadow: 
-                    0 0 10px #00ff88, /* Cor primária do brilho (Verde/Petróleo Refinado) */
-                    0 0 20px #00ff88,
-                    0 0 40px #00cc66,
-                    0 0 80px #00994d;
-                color: #ffffff;
-            }
-            50% {
-                text-shadow: 
-                    0 0 5px #00ff88, 
-                    0 0 10px #00ff88, 
-                    0 0 20px #00cc66;
-                color: #e0f8ff;
-            }
-        }
+/* oil_styles_v2.css */
 
-        .company-name {
-            font-size: 2.5em;
-            font-weight: bold;
-            letter-spacing: 2px;
-            margin-bottom: 20px;
-            animation: neon-glow 1.5s ease-in-out infinite alternate;
-            text-transform: uppercase;
-        }
-    </style>
-</head>
-<body>
-    <div class="background-image-container">
-        <img src="{% static 'images/background_cadastro.jpg' %}" alt="Refinaria de Petróleo" class="background-image">
-        <div class="overlay"></div>
-    </div>
-    <div class="content">
-        
-        <div class="company-name">SAUDI ARAMCO</div>
-        
-        <div class="header">
-            <h2>Crie sua conta</h2>
-        </div>
-        
-        <form method="post" class="auth-form">
-            {% csrf_token %}
-            
-            {# Mensagens globais e erros que não estão associados a um campo específico #}
-            {% if messages %}
-                {% for message in messages %}
-                    <p class="django-message {{ message.tags }}">{{ message }}</p>
-                {% endfor %}
-            {% endif %}
-            
-            {% if form.non_field_errors %}
-                <ul class="errorlist">
-                    {% for error in form.non_field_errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
+:root {
+    --bg-dark-overlay: rgba(0, 0, 0, 0.7); /* Overlay um pouco mais claro */
+    --primary-green: #00e676; /* Verde vibrante para botões e destaques */
+    --secondary-blue-dark: #2c3e50; /* Azul escuro para inputs */
+    --text-light: #e0e0e0; /* Texto quase branco */
+    --text-accent: #b2ebf2; /* Azul claro para alguns detalhes */
+    --error-color: #e57373; /* Vermelho suave para erros */
+    --card-bg-transparent: rgba(17, 17, 17, 0.7); /* Fundo do card mais transparente */
+    --border-glow: #00ff88; /* Verde para bordas e brilhos */
+}
 
-            <div class="form-group">
-                <label for="{{ form.phone_number.id_for_label }}">Número de Telefone:</label>
-                {{ form.phone_number }}
-                {% if form.phone_number.errors %}
-                    <ul class="errorlist">
-                        {% for error in form.phone_number.errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-            </div>
-            
-            <div class="form-group">
-                <label for="{{ form.password.id_for_label }}">Senha:</label>
-                <div class="password-input-wrapper">
-                    {{ form.password }}
-                    <span class="password-toggle" onclick="togglePasswordVisibility('{{ form.password.id_for_label }}', this)"><i class="fas fa-eye"></i></span>
-                </div>
-                {% if form.password.errors %}
-                    <ul class="errorlist">
-                        {% for error in form.password.errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-            </div>
-            
-            <div class="form-group">
-                <label for="{{ form.confirm_password.id_for_label }}">Confirme a Senha:</label>
-                <div class="password-input-wrapper">
-                    {{ form.confirm_password }}
-                    <span class="password-toggle" onclick="togglePasswordVisibility('{{ form.confirm_password.id_for_label }}', this)"><i class="fas fa-eye"></i></span>
-                </div>
-                {% if form.confirm_password.errors %}
-                    <ul class="errorlist">
-                        {% for error in form.confirm_password.errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-            </div>
-            
-            <div class="form-group">
-                <label for="{{ form.invited_by_code.id_for_label }}">Código de Convite:</label>
-                {{ form.invited_by_code }}
-                {% if form.invited_by_code.errors %}
-                    <ul class="errorlist">
-                        {% for error in form.invited_by_code.errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-            </div>
-            
-            <button type="submit" class="submit-button">Cadastrar</button>
-        </form>
-        
-        <div class="support-link">
-            {% if whatsapp_link %}
-                <a href="{{ whatsapp_link }}" target="_blank">
-                    <i class="fab fa-whatsapp"></i> Suporte
-                </a>
-            {% else %}
-                <a href="#">
-                    <i class="fab fa-whatsapp"></i> Suporte
-                </a>
-            {% endif %}
-        </div>
-        
-        <div class="login-link">
-            <a href="{% url 'login' %}">Já tem conta? Faça o login</a>
-        </div>
-    </div>
+/* Base Global */
+body {
+    font-family: 'Montserrat', sans-serif; /* Fonte mais elegante para o corpo */
+    color: var(--text-light);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #1a1a1a; /* Fundo padrão mais suave */
+    overflow-y: auto;
+}
 
-    <script>
-        function togglePasswordVisibility(fieldId, toggleElement) {
-            const field = document.getElementById(fieldId);
-            const icon = toggleElement.querySelector('i');
-            
-            if (field.type === "password") {
-                field.type = "text";
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                field.type = "password";
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        }
-    </script>
-</body>
-</html>
+/* Background e Overlay */
+.background-image-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+}
+
+.background-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.6) contrast(1.1); /* Ajuste para mais visibilidade da imagem */
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-dark-overlay); /* Overlay mais transparente */
+    z-index: -1;
+}
+
+/* Content Container (o formulário em si) */
+.content {
+    background: var(--card-bg-transparent); /* Fundo mais transparente */
+    padding: 40px 30px;
+    border-radius: 12px;
+    box-shadow: 0 0 30px rgba(0, 230, 118, 0.3); /* Sombra mais vibrante */
+    width: 90%;
+    max-width: 420px; /* Levemente mais largo */
+    backdrop-filter: blur(5px); /* Efeito de vidro fosco mais pronunciado */
+    border: 1px solid rgba(0, 230, 118, 0.4); /* Borda suave de brilho */
+    transition: all 0.3s ease;
+}
+
+/* Nome da Empresa */
+.company-name {
+    font-family: 'Oswald', sans-serif; /* Fonte para o nome da empresa */
+    font-size: 3em; /* Levemente maior */
+    font-weight: 700;
+    letter-spacing: 3px;
+    margin-bottom: 25px;
+    text-align: center;
+    color: #ffffff; /* Cor branca para o texto */
+    text-shadow: 
+        0 0 10px var(--border-glow), /* Efeito de brilho estático */
+        0 0 20px var(--border-glow),
+        0 0 30px var(--border-glow),
+        0 0 40px rgba(0, 255, 136, 0.4); /* Mais suave */
+    text-transform: uppercase;
+}
+
+/* Título e Header */
+.header h2 {
+    color: var(--text-light);
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 1.8em;
+    font-weight: 600;
+}
+
+/* Formulário e Grupos */
+.auth-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--text-light);
+    font-size: 0.95em;
+}
+
+/* Campos de Input */
+.form-group input {
+    width: 100%;
+    padding: 14px; /* Maior padding */
+    border: 1px solid #444;
+    border-radius: 8px; /* Cantos mais arredondados */
+    background-color: var(--secondary-blue-dark); /* Fundo dos inputs */
+    color: var(--text-light);
+    font-size: 16px;
+    transition: border-color 0.3s, box-shadow 0.3s, background-color 0.3s;
+    box-sizing: border-box;
+}
+
+.form-group input:focus {
+    border-color: var(--primary-green);
+    box-shadow: 0 0 12px rgba(0, 230, 118, 0.6); /* Brilho mais intenso no foco */
+    outline: none;
+    background-color: #3b526d; /* Levemente mais claro no foco */
+}
+
+/* Estilo para a Envoltória da Senha (com ícone) */
+.password-input-wrapper {
+    position: relative;
+}
+
+.password-input-wrapper input {
+    padding-right: 45px; /* Espaço para o ícone maior */
+}
+
+.password-toggle {
+    position: absolute;
+    right: 15px; /* Posição ajustada */
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: var(--text-accent); /* Cor do ícone */
+    font-size: 1.1em; /* Ícone um pouco maior */
+    transition: color 0.2s;
+}
+
+.password-toggle:hover {
+    color: var(--primary-green);
+}
+
+/* Botão de Cadastro (Submit) */
+.submit-button {
+    padding: 15px; /* Maior padding */
+    background-color: var(--primary-green);
+    color: #1a1a1a; /* Texto escuro no botão claro */
+    font-weight: bold;
+    border: none;
+    border-radius: 8px; /* Cantos arredondados */
+    cursor: pointer;
+    font-size: 1.15em; /* Fonte ligeiramente maior */
+    margin-top: 20px;
+    transition: background-color 0.3s, transform 0.1s, box-shadow 0.3s;
+    text-shadow: 0 0 3px rgba(0, 0, 0, 0.4); /* Sombra de texto suave */
+}
+
+.submit-button:hover {
+    background-color: #00cc66;
+    transform: translateY(-2px); /* Efeito de "subir" mais pronunciado */
+    box-shadow: 0 8px 20px rgba(0, 230, 118, 0.5); /* Sombra mais visível */
+}
+
+/* Links de Suporte e Login */
+.support-link, .login-link {
+    text-align: center;
+    margin-top: 25px; /* Mais espaço */
+    font-size: 1em;
+}
+
+.support-link a, .login-link a {
+    color: var(--text-accent); /* Cor azul claro */
+    text-decoration: none;
+    transition: color 0.3s, text-shadow 0.3s;
+}
+
+.support-link a:hover, .login-link a:hover {
+    color: var(--primary-green);
+    text-shadow: 0 0 8px var(--primary-green);
+}
+
+.support-link i {
+    margin-right: 10px;
+    font-size: 1.1em;
+}
+
+/* Erros do Django */
+.errorlist {
+    color: var(--error-color);
+    list-style: none;
+    padding: 5px 0 10px 0;
+    margin: 0;
+    font-size: 0.9em;
+    background-color: rgba(229, 115, 115, 0.1);
+    border-radius: 5px;
+    margin-top: -10px; /* Ajuste para não ter muito espaço */
+}
+.errorlist li {
+    padding: 5px 10px;
+}
+
+/* Mensagens do Django */
+.django-message {
+    padding: 12px;
+    margin-bottom: 20px;
+    border-radius: 6px;
+    font-size: 0.95em;
+    text-align: center;
+    border: 1px solid;
+}
+
+.django-message.error {
+    background-color: rgba(229, 115, 115, 0.2);
+    border-color: var(--error-color);
+    color: var(--error-color);
+}
+.django-message.success {
+    background-color: rgba(0, 230, 118, 0.2);
+    border-color: var(--primary-green);
+    color: var(--primary-green);
+}
