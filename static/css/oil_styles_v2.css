@@ -1,16 +1,19 @@
-/* oil_styles.css */
+/* oil_styles_v2.css */
 
 :root {
-    --bg-dark: #0a0a0a; /* Fundo muito escuro, quase preto do petróleo */
-    --primary-color: #00ff88; /* Verde Neon/Refinado para destaque (brilho) */
-    --secondary-color: #2c3e50; /* Cinza metálico/azulado para campos */
-    --text-light: #f5f5f5; /* Texto claro */
-    --error-color: #e74c3c; /* Vermelho para erros */
+    --bg-dark-overlay: rgba(0, 0, 0, 0.7); /* Overlay um pouco mais claro */
+    --primary-green: #00e676; /* Verde vibrante para botões e destaques */
+    --secondary-blue-dark: #2c3e50; /* Azul escuro para inputs */
+    --text-light: #e0e0e0; /* Texto quase branco */
+    --text-accent: #b2ebf2; /* Azul claro para alguns detalhes */
+    --error-color: #e57373; /* Vermelho suave para erros */
+    --card-bg-transparent: rgba(17, 17, 17, 0.7); /* Fundo do card mais transparente */
+    --border-glow: #00ff88; /* Verde para bordas e brilhos */
 }
 
 /* Base Global */
 body {
-    font-family: 'Arial', sans-serif;
+    font-family: 'Montserrat', sans-serif; /* Fonte mais elegante para o corpo */
     color: var(--text-light);
     margin: 0;
     padding: 0;
@@ -18,8 +21,8 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: var(--bg-dark); /* Fundo padrão caso a imagem falhe */
-    overflow-y: auto; /* Permite scroll em telas pequenas */
+    background-color: #1a1a1a; /* Fundo padrão mais suave */
+    overflow-y: auto;
 }
 
 /* Background e Overlay */
@@ -36,7 +39,7 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    filter: brightness(0.4) contrast(1.2); /* Escurece e aumenta o contraste para parecer "óleo" */
+    filter: brightness(0.6) contrast(1.1); /* Ajuste para mais visibilidade da imagem */
 }
 
 .overlay {
@@ -45,20 +48,38 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.6); /* Overlay escuro adicional */
+    background: var(--bg-dark-overlay); /* Overlay mais transparente */
     z-index: -1;
 }
 
 /* Content Container (o formulário em si) */
 .content {
-    background: rgba(17, 17, 17, 0.95); /* Fundo semi-transparente escuro para o conteúdo */
+    background: var(--card-bg-transparent); /* Fundo mais transparente */
     padding: 40px 30px;
     border-radius: 12px;
-    box-shadow: 0 0 20px rgba(0, 255, 136, 0.2); /* Sombra suave para destacar o brilho */
+    box-shadow: 0 0 30px rgba(0, 230, 118, 0.3); /* Sombra mais vibrante */
     width: 90%;
-    max-width: 400px;
-    backdrop-filter: blur(2px); /* Efeito de vidro fosco */
-    border: 1px solid var(--primary-color); /* Borda fina para o tema */
+    max-width: 420px; /* Levemente mais largo */
+    backdrop-filter: blur(5px); /* Efeito de vidro fosco mais pronunciado */
+    border: 1px solid rgba(0, 230, 118, 0.4); /* Borda suave de brilho */
+    transition: all 0.3s ease;
+}
+
+/* Nome da Empresa */
+.company-name {
+    font-family: 'Oswald', sans-serif; /* Fonte para o nome da empresa */
+    font-size: 3em; /* Levemente maior */
+    font-weight: 700;
+    letter-spacing: 3px;
+    margin-bottom: 25px;
+    text-align: center;
+    color: #ffffff; /* Cor branca para o texto */
+    text-shadow: 
+        0 0 10px var(--border-glow), /* Efeito de brilho estático */
+        0 0 20px var(--border-glow),
+        0 0 30px var(--border-glow),
+        0 0 40px rgba(0, 255, 136, 0.4); /* Mais suave */
+    text-transform: uppercase;
 }
 
 /* Título e Header */
@@ -67,6 +88,7 @@ body {
     text-align: center;
     margin-bottom: 25px;
     font-size: 1.8em;
+    font-weight: 600;
 }
 
 /* Formulário e Grupos */
@@ -82,28 +104,29 @@ body {
 .form-group label {
     display: block;
     margin-bottom: 8px;
-    font-weight: 600;
+    font-weight: 500;
     color: var(--text-light);
+    font-size: 0.95em;
 }
 
 /* Campos de Input */
 .form-group input {
     width: 100%;
-    padding: 12px;
+    padding: 14px; /* Maior padding */
     border: 1px solid #444;
-    border-radius: 6px;
-    background-color: var(--secondary-color); /* Fundo metálico/escuro */
+    border-radius: 8px; /* Cantos mais arredondados */
+    background-color: var(--secondary-blue-dark); /* Fundo dos inputs */
     color: var(--text-light);
     font-size: 16px;
-    transition: border-color 0.3s, box-shadow 0.3s;
-    box-sizing: border-box; /* Inclui padding e border no width total */
+    transition: border-color 0.3s, box-shadow 0.3s, background-color 0.3s;
+    box-sizing: border-box;
 }
 
 .form-group input:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 8px rgba(0, 255, 136, 0.5); /* Brilho no foco */
+    border-color: var(--primary-green);
+    box-shadow: 0 0 12px rgba(0, 230, 118, 0.6); /* Brilho mais intenso no foco */
     outline: none;
-    background-color: #34495e;
+    background-color: #3b526d; /* Levemente mais claro no foco */
 }
 
 /* Estilo para a Envoltória da Senha (com ícone) */
@@ -112,64 +135,66 @@ body {
 }
 
 .password-input-wrapper input {
-    padding-right: 40px; /* Espaço para o ícone */
+    padding-right: 45px; /* Espaço para o ícone maior */
 }
 
 .password-toggle {
     position: absolute;
-    right: 12px;
+    right: 15px; /* Posição ajustada */
     top: 50%;
     transform: translateY(-50%);
     cursor: pointer;
-    color: #95a5a6; /* Cor do ícone */
+    color: var(--text-accent); /* Cor do ícone */
+    font-size: 1.1em; /* Ícone um pouco maior */
     transition: color 0.2s;
 }
 
 .password-toggle:hover {
-    color: var(--primary-color);
+    color: var(--primary-green);
 }
 
 /* Botão de Cadastro (Submit) */
 .submit-button {
-    padding: 12px;
-    background-color: var(--primary-color); /* Cor principal forte */
-    color: var(--bg-dark);
+    padding: 15px; /* Maior padding */
+    background-color: var(--primary-green);
+    color: #1a1a1a; /* Texto escuro no botão claro */
     font-weight: bold;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px; /* Cantos arredondados */
     cursor: pointer;
-    font-size: 1.1em;
-    margin-top: 10px;
+    font-size: 1.15em; /* Fonte ligeiramente maior */
+    margin-top: 20px;
     transition: background-color 0.3s, transform 0.1s, box-shadow 0.3s;
-    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    text-shadow: 0 0 3px rgba(0, 0, 0, 0.4); /* Sombra de texto suave */
 }
 
 .submit-button:hover {
-    background-color: #00cc66; /* Tom ligeiramente mais escuro no hover */
-    transform: translateY(-1px);
-    box-shadow: 0 5px 15px rgba(0, 255, 136, 0.4);
+    background-color: #00cc66;
+    transform: translateY(-2px); /* Efeito de "subir" mais pronunciado */
+    box-shadow: 0 8px 20px rgba(0, 230, 118, 0.5); /* Sombra mais visível */
 }
 
 /* Links de Suporte e Login */
 .support-link, .login-link {
     text-align: center;
-    margin-top: 20px;
-    font-size: 0.95em;
+    margin-top: 25px; /* Mais espaço */
+    font-size: 1em;
 }
 
 .support-link a, .login-link a {
-    color: var(--primary-color);
+    color: var(--text-accent); /* Cor azul claro */
     text-decoration: none;
     transition: color 0.3s, text-shadow 0.3s;
 }
 
 .support-link a:hover, .login-link a:hover {
-    color: #ffffff;
-    text-shadow: 0 0 5px var(--primary-color);
+    color: var(--primary-green);
+    text-shadow: 0 0 8px var(--primary-green);
 }
 
 .support-link i {
-    margin-right: 8px;
+    margin-right: 10px;
+    font-size: 1.1em;
 }
 
 /* Erros do Django */
@@ -179,19 +204,31 @@ body {
     padding: 5px 0 10px 0;
     margin: 0;
     font-size: 0.9em;
+    background-color: rgba(229, 115, 115, 0.1);
+    border-radius: 5px;
+    margin-top: -10px; /* Ajuste para não ter muito espaço */
+}
+.errorlist li {
+    padding: 5px 10px;
 }
 
-/* Mensagens do Django (opcional, para 'messages' frameworks) */
+/* Mensagens do Django */
 .django-message {
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 4px;
-    font-size: 0.9em;
+    padding: 12px;
+    margin-bottom: 20px;
+    border-radius: 6px;
+    font-size: 0.95em;
     text-align: center;
+    border: 1px solid;
 }
 
 .django-message.error {
-    background-color: rgba(231, 76, 60, 0.2);
-    border: 1px solid var(--error-color);
+    background-color: rgba(229, 115, 115, 0.2);
+    border-color: var(--error-color);
     color: var(--error-color);
+}
+.django-message.success {
+    background-color: rgba(0, 230, 118, 0.2);
+    border-color: var(--primary-green);
+    color: var(--primary-green);
 }
