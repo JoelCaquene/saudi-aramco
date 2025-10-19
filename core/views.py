@@ -24,20 +24,33 @@ def home(request):
 def menu(request):
     user_level = None
     levels = Level.objects.all().order_by('deposit_value')
+    
+    # Variáveis de Configuração da Plataforma
+    whatsapp_link = '#'
+    app_download_link = '#'  # <-- Inicializa a nova variável
 
     if request.user.is_authenticated:
         user_level = UserLevel.objects.filter(user=request.user, is_active=True).first()
 
     try:
         platform_settings = PlatformSettings.objects.first()
-        whatsapp_link = platform_settings.whatsapp_link
+        if platform_settings:
+            whatsapp_link = platform_settings.whatsapp_link
+            # --- ADICIONA A LÓGICA PARA PEGAR O LINK DE DOWNLOAD DO APP ---
+            # Assume que PlatformSettings tem um campo chamado 'app_download_link'
+            app_download_link = platform_settings.app_download_link
+            # --- FIM DA LÓGICA DO APP LINK ---
     except (PlatformSettings.DoesNotExist, AttributeError):
+        # Caso o objeto não exista ou o campo não exista ainda
         whatsapp_link = '#'
+        app_download_link = '#'
+
 
     context = {
         'user_level': user_level,
         'levels': levels,
         'whatsapp_link': whatsapp_link,
+        'app_download_link': app_download_link, # <-- ADICIONADO AO CONTEXTO
     }
     return render(request, 'menu.html', context)
 
@@ -89,6 +102,7 @@ def user_login(request):
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
+            authenticate(request, user)
             login(request, user)
             return redirect('menu')
     else:
