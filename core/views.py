@@ -3,12 +3,13 @@ from django.contrib.auth import login, authenticate, logout, update_session_auth
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Sum
+from django.db.models import Sum, DecimalField
 from django.urls import reverse
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 import random
 from datetime import date
+from decimal import Decimal # Importar Decimal para cálculos de precisão
 
 from .forms import RegisterForm, DepositForm, WithdrawalForm, BankDetailsForm
 from .models import PlatformSettings, CustomUser, Level, UserLevel, BankDetails, Deposit, Withdrawal, Task, PlatformBankDetails, Roulette, RouletteSettings
@@ -21,13 +22,14 @@ def get_member_class(level_id):
     Nível 4-6: Classe B (5%)
     Nível 7+: Classe C (7%)
     """
+    # Mapeamento de Classes e Taxas
     if 1 <= level_id <= 3:
-        return 'Classe A', 0.03 # 3%
+        return 'Classe A', Decimal('0.03') # 3%
     elif 4 <= level_id <= 6:
-        return 'Classe B', 0.05 # 5%
+        return 'Classe B', Decimal('0.05') # 5%
     elif level_id >= 7:
-        return 'Classe C', 0.07 # 7%
-    return 'Sem Classe', 0.0
+        return 'Classe C', Decimal('0.07') # 7%
+    return 'Sem Classe', Decimal('0.00')
 # --- FIM DA NOVA FUNÇÃO ---
 
 # --- FUNÇÃO ATUALIZADA ---
@@ -127,7 +129,8 @@ def user_logout(request):
 @login_required
 def deposito(request):
     platform_bank_details = PlatformBankDetails.objects.all()
-    deposit_instruction = PlatformSettings.objects.first().deposit_instruction if PlatformSettings.objects.first() else 'Instruções de depósito não disponíveis.'
+    deposit_settings = PlatformSettings.objects.first()
+    deposit_instruction = deposit_settings.deposit_instruction if deposit_settings else 'Instruções de depósito não disponíveis.'
     
     # Busca todos os valores de depósito dos Níveis para a Etapa 2
     level_deposits = Level.objects.all().values_list('deposit_value', flat=True).distinct().order_by('deposit_value')
@@ -185,7 +188,8 @@ def approve_deposit(request, deposit_id):
 
 @login_required
 def saque(request):
-    withdrawal_instruction = PlatformSettings.objects.first().withdrawal_instruction if PlatformSettings.objects.first() else 'Instruções de saque não disponíveis.'
+    withdrawal_settings = PlatformSettings.objects.first()
+    withdrawal_instruction = withdrawal_settings.withdrawal_instruction if withdrawal_settings else 'Instruções de saque não disponíveis.'
     
     withdrawal_records = Withdrawal.objects.filter(user=request.user).order_by('-created_at')
     
@@ -273,13 +277,14 @@ def process_task(request):
         level_id = active_level.level.id
         class_name, subsidy_rate = get_member_class(level_id) # Obter classe e taxa
         
-        if subsidy_rate > 0:
-            subsidy_amount = earnings * subsidy_rate # Calcular subsídio com base nos ganhos da tarefa do subordinado
+        if subsidy_rate > Decimal('0.00'):
+            # Calcula subsídio com base nos ganhos da tarefa do subordinado
+            subsidy_amount = earnings * subsidy_rate 
             
             # Adicionar o subsídio ao saldo do convidante
             invited_by_user.subsidy_balance += subsidy_amount
             invited_by_user.available_balance += subsidy_amount
-            # Assumindo que você adicionou 'team_subsidy_received' ao CustomUser no models.py
+            # Atualiza o total de subsídio recebido da equipe (necessário para o template 'equipa.html')
             invited_by_user.team_subsidy_received += subsidy_amount 
             invited_by_user.save()
             
@@ -309,12 +314,14 @@ def nivel(request):
             request.user.level_active = True
             request.user.save()
             
+            # Lógica de bónus por convite de 1000$ (Ajuste se for um valor de subsídio fixo)
             invited_by_user = request.user.invited_by
             if invited_by_user and UserLevel.objects.filter(user=invited_by_user, is_active=True).exists():
-                invited_by_user.subsidy_balance += 1000
-                invited_by_user.available_balance += 1000
+                bonus_amount = Decimal('1000.00')
+                invited_by_user.subsidy_balance += bonus_amount
+                invited_by_user.available_balance += bonus_amount
                 invited_by_user.save()
-                messages.success(request, f'Parabéns! Você recebeu 1000 $ de subsídio por convite de {request.user.phone_number}.')
+                messages.success(request, f'Parabéns! Você recebeu {bonus_amount} $ de subsídio por convite de {request.user.phone_number}.')
 
             messages.success(request, f'Você comprou o nível {level_to_buy.name} com sucesso!')
         else:
@@ -332,49 +339,59 @@ def nivel(request):
 @login_required
 def equipa(request):
     user = request.user
+    # Busca apenas membros diretos. Se houver multinível, esta lógica deve ser expandida.
     team_members = CustomUser.objects.filter(invited_by=user).order_by('-date_joined')
     
     # 1. Preparar a estrutura para as classes A, B, C
     team_classes = {
-        'A': {'members': [], 'task_earnings_total': 0.00, 'subsidy_total': 0.00},
-        'B': {'members': [], 'task_earnings_total': 0.00, 'subsidy_total': 0.00},
-        'C': {'members': [], 'task_earnings_total': 0.00, 'subsidy_total': 0.00},
+        'A': {'members': [], 'subsidy_total': Decimal('0.00')},
+        'B': {'members': [], 'subsidy_total': Decimal('0.00')},
+        'C': {'members': [], 'subsidy_total': Decimal('0.00')},
     }
     
     for member in team_members:
         # Pega o nível ativo do membro (se houver)
         member.active_level = UserLevel.objects.filter(user=member, is_active=True).first()
         
+        # 2. Dados necessários para o template
+        member.total_tasks_earnings = Task.objects.filter(user=member).aggregate(
+            total=Sum('earnings', output_field=DecimalField())
+        )['total'] or Decimal('0.00')
+        
+        # O campo subsidy_received no template refere-se ao subsídio que o LÍDER (request.user)
+        # recebeu deste membro. No seu sistema, este cálculo é feito e o total acumulado
+        # na conta do líder. Para esta exibição, faremos uma aproximação:
+        # Nota: O cálculo exato exigiria iterar sobre as Tarefas *deste* membro.
+        
         if member.active_level:
             level_id = member.active_level.level.id
             class_name, subsidy_rate = get_member_class(level_id)
             
             member.class_name = class_name
-            member.subsidy_rate = subsidy_rate
             
-            # Cálculo de ganhos de tarefas e subsídio total do membro
-            member_total_tasks_earnings = Task.objects.filter(user=member).aggregate(Sum('earnings'))['earnings__sum'] or 0.00
-            member.total_tasks_earnings = member_total_tasks_earnings
+            # Aproximação do subsídio total que o líder ganhou deste membro:
+            member.subsidy_received = member.total_tasks_earnings * subsidy_rate
             
-            # Subsídio que o LÍDER (request.user) recebeu deste membro
-            member.subsidy_received = member_total_tasks_earnings * subsidy_rate
-
-            class_key = class_name.split(' ')[1]
+            class_key = class_name.split(' ')[1] # Pega 'A', 'B' ou 'C'
             if class_key in team_classes:
                 team_classes[class_key]['members'].append(member)
                 # Acumula o subsídio total recebido desta classe
                 team_classes[class_key]['subsidy_total'] += member.subsidy_received
-    
-    # Adicionar o total de subsídio recebido da equipe ao contexto (se o campo foi adicionado)
-    # Se o campo não foi adicionado, isso resultará em erro. Remova esta linha se for o caso.
-    team_subsidy_received_total = getattr(user, 'team_subsidy_received', None) or 0.00
+        else:
+             # Membro sem nível ativo, não é incluído nas classes A/B/C
+             # Mas fica em 'team_members' para a aba 'Não Investiu'
+             member.class_name = 'Sem Classe'
+             member.subsidy_received = Decimal('0.00')
+
+    # Total geral do subsídio recebido da equipe (lido do campo do usuário)
+    team_subsidy_received_total = getattr(user, 'team_subsidy_received', Decimal('0.00'))
     
     context = {
         'team_members': team_members,
         'team_count': team_members.count(),
         'invite_link': request.build_absolute_uri(reverse('cadastro')) + f'?invite={user.invite_code}',
-        'team_classes': team_classes, # NOVO: Dados das classes A, B, C
-        'team_subsidy_received_total': team_subsidy_received_total, # NOVO: Total geral
+        'team_classes': team_classes,
+        'team_subsidy_received_total': team_subsidy_received_total,
     }
     return render(request, 'equipa.html', context)
 # --- FIM DA FUNÇÃO equipa ATUALIZADA ---
@@ -404,7 +421,8 @@ def spin_roulette(request):
         roulette_settings = RouletteSettings.objects.first()
         
         if roulette_settings and roulette_settings.prizes:
-            prizes_from_admin = [int(p.strip()) for p in roulette_settings.prizes.split(',')]
+            # Garante que os prêmios são Decimais para consistência
+            prizes_from_admin = [Decimal(p.strip()) for p in roulette_settings.prizes.split(',')]
             prizes_weighted = []
             for prize in prizes_from_admin:
                 if prize <= 1000:
@@ -413,11 +431,11 @@ def spin_roulette(request):
                     prizes_weighted.append(prize)
             prize = random.choice(prizes_weighted)
         else:
-            prizes = [100, 200, 300, 500, 1000, 2000]
+            prizes = [Decimal('100.00'), Decimal('200.00'), Decimal('300.00'), Decimal('500.00'), Decimal('1000.00'), Decimal('2000.00')]
             prize = random.choice(prizes)
 
     except RouletteSettings.DoesNotExist:
-        prizes = [100, 200, 300, 500, 1000, 2000]
+        prizes = [Decimal('100.00'), Decimal('200.00'), Decimal('300.00'), Decimal('500.00'), Decimal('1000.00'), Decimal('2000.00')]
         prize = random.choice(prizes)
 
     Roulette.objects.create(user=user, prize=prize, is_approved=True)
@@ -426,7 +444,7 @@ def spin_roulette(request):
     user.available_balance += prize
     user.save()
 
-    return JsonResponse({'success': True, 'prize': prize, 'message': f'Parabéns! Você ganhou {prize} $.'})
+    return JsonResponse({'success': True, 'prize': str(prize), 'message': f'Parabéns! Você ganhou {prize} $.'})
 
 @login_required
 def sobre(request):
@@ -480,18 +498,19 @@ def renda(request):
     
     active_level = UserLevel.objects.filter(user=user, is_active=True).first()
 
-    approved_deposit_total = Deposit.objects.filter(user=user, is_approved=True).aggregate(Sum('amount'))['amount__sum'] or 0
+    approved_deposit_total = Deposit.objects.filter(user=user, is_approved=True).aggregate(Sum('amount'))['amount__sum'] or Decimal('0.00')
     
     today = date.today()
-    daily_income = Task.objects.filter(user=user, completed_at__date=today).aggregate(Sum('earnings'))['earnings__sum'] or 0
+    daily_income = Task.objects.filter(user=user, completed_at__date=today).aggregate(Sum('earnings'))['earnings__sum'] or Decimal('0.00')
 
-    # A linha abaixo foi alterada para corrigir o status para 'Aprovado'
-    total_withdrawals = Withdrawal.objects.filter(user=user, status='Aprovado').aggregate(Sum('amount'))['amount__sum'] or 0
+    # A linha abaixo foi alterada para corrigir o status para 'Aprovado' (e usar Decimal)
+    total_withdrawals = Withdrawal.objects.filter(user=user, status='Aprovado').aggregate(Sum('amount'))['amount__sum'] or Decimal('0.00')
     
-    # Adicionar o Subsídio da Equipe ao total_income
-    team_subsidy_total = getattr(user, 'team_subsidy_received', 0)
+    # Adicionar o Subsídio da Equipe ao total_income (e usar Decimal)
+    team_subsidy_total = getattr(user, 'team_subsidy_received', Decimal('0.00'))
     
-    total_income = (Task.objects.filter(user=user).aggregate(Sum('earnings'))['earnings__sum'] or 0) + user.subsidy_balance + team_subsidy_total
+    total_task_earnings = Task.objects.filter(user=user).aggregate(Sum('earnings'))['earnings__sum'] or Decimal('0.00')
+    total_income = total_task_earnings + user.subsidy_balance + team_subsidy_total
     
     context = {
         'user': user,
