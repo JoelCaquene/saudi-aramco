@@ -10,18 +10,18 @@
         @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css');
 
         :root {
-            /* Adaptação do tema SAUDI ARAMCO: Verde/Preto/Dourado (Petróleo) */
-            --cor-fundo-principal: #0a0a0a; /* Fundo preto sutil */
-            --cor-brilho: rgba(255, 255, 255, 0.05);
-            --cor-card-fundo: rgba(18, 18, 18, 0.95); /* Cartão escuro com transparência */
-            --cor-borda-input: #333333;
-            --cor-placeholder: #aaaaaa;
+            /* Tema ELETROBRAS (Arquivo 1) reintroduzido */
+            --cor-fundo-principal: #ffffff; /* Fundo branco */
+            --cor-card-fundo: rgba(255, 255, 255, 0.9);
+            --cor-borda-input: #e0e0e0;
+            --cor-placeholder: #616161;
+            --cor-texto-claro: #212121; /* Texto escuro para fundo claro */
+            --cor-texto-escuro: #212121;
+            /* Destaques SAUDI ARAMCO (Verde/Dourado) mantidos */
             --cor-destaque-1: #008000; /* Verde escuro (corporativo) */
             --cor-destaque-2: #ffcc00; /* Dourado/Amarelo Petróleo */
-            --cor-texto-claro: #ffffff;
-            --cor-texto-escuro: #eeeeee;
             --cor-botao-cadastro: linear-gradient(45deg, var(--cor-destaque-1), var(--cor-destaque-2));
-            --cor-shadow-card: 0 10px 40px rgba(0, 0, 0, 0.4);
+            --cor-shadow-card: 0 10px 40px rgba(0, 0, 0, 0.1);
         }
 
         body {
@@ -34,7 +34,7 @@
             align-items: center;
             min-height: 100vh;
             background-color: var(--cor-fundo-principal);
-            color: var(--cor-texto-claro);
+            color: var(--cor-texto-escuro);
             position: relative;
             overflow-x: hidden;
             overflow-y: auto;
@@ -43,10 +43,10 @@
 
         @keyframes fundoBrilho {
             0% {
-                background-color: #0a0a0a;
+                background-color: #ffffff;
             }
             100% {
-                background-color: #1a1a1a;
+                background-color: #f0f0f0;
             }
         }
 
@@ -57,26 +57,29 @@
             left: 0;
             width: 100%;
             height: 100%;
-            /* Imagem de fundo adaptada para o tema SAUDI ARAMCO (energia/óleo) */
-            background-image: url("https://images.unsplash.com/photo-1544837330-22c01994e43f?q=80&w=2070&auto=format&fit=crop");
+            /* Fundo sutil do Arquivo 1, adaptado com cor de petróleo */
+            background-image: url("https://images.unsplash.com/photo-1579294247481-9b1695427d14?q=80&w=2070&auto=format&fit=crop"); /* Mantido o fundo original */
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
-            opacity: 0.1; /* Sutil */
+            opacity: 0.1;
             z-index: -1;
-            filter: brightness(50%) contrast(150%); /* Dark e contrastante */
+            filter: grayscale(100%) brightness(150%);
         }
 
         .title-platform {
-            font-size: 3.5em; /* Reduzido um pouco para caber */
+            /* Alterado o tamanho para caber em uma linha e manter o estilo */
+            font-size: 4em; 
             font-weight: 700;
             color: var(--cor-destaque-2); /* Dourado */
             text-shadow: 0 0 20px var(--cor-destaque-2), 0 0 40px var(--cor-destaque-1);
-            letter-spacing: 5px;
+            letter-spacing: 3px; /* Reduzido o espaçamento */
             margin-bottom: 30px;
             position: relative;
             text-transform: uppercase;
             animation: piscaDourado 1s infinite alternate;
+            /* Adicionado white-space para forçar em uma linha, se necessário */
+            white-space: nowrap; 
         }
 
         @keyframes piscaDourado {
@@ -88,7 +91,7 @@
             }
         }
         
-        /* Efeitos de pulso de luz do Arquivo 1 - adaptado para o tema */
+        /* Efeitos de pulso de luz (mantidos) */
         .title-platform::before, .title-platform::after {
             content: '';
             position: absolute;
@@ -104,7 +107,7 @@
             top: 50%;
             left: -50px;
             transform: translateY(-50%);
-            box-shadow: 0 0 50px 30px var(--cor-destaque-2); /* Dourado */
+            box-shadow: 0 0 50px 30px var(--cor-destaque-2);
             animation-delay: 0s;
         }
 
@@ -114,7 +117,7 @@
             top: 50%;
             right: -50px;
             transform: translateY(-50%);
-            box-shadow: 0 0 50px 30px var(--cor-destaque-1); /* Verde */
+            box-shadow: 0 0 50px 30px var(--cor-destaque-1);
             animation-delay: 1s;
         }
 
@@ -133,16 +136,16 @@
             }
         }
 
-        .content { /* Renomeado de container para 'content' para manter a estrutura do Arquivo 2 */
+        .content {
             background: var(--cor-card-fundo);
-            backdrop-filter: blur(8px);
-            padding: 40px;
+            backdrop-filter: blur(10px);
+            padding: 50px;
             border-radius: 20px;
             text-align: center;
             width: 90%;
-            max-width: 450px;
-            box-shadow: var(--cor-shadow-card);
-            border: 1px solid #333;
+            max-width: 500px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid #ddd;
             position: relative;
             z-index: 1;
             animation: fadeIn 1.2s ease-out 0.5s backwards;
@@ -151,19 +154,19 @@
         @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: scale(0.95) translateY(20px);
+                transform: scale(0.95);
             }
             to {
                 opacity: 1;
-                transform: scale(1) translateY(0);
+                transform: scale(1);
             }
         }
 
         h2 {
             margin-top: 0;
-            margin-bottom: 25px;
-            font-size: 2.2em;
-            color: var(--cor-texto-claro);
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            color: var(--cor-texto-escuro);
             font-weight: 700;
         }
         
@@ -178,20 +181,21 @@
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
-            color: var(--cor-destaque-2);
+            color: var(--cor-texto-escuro); /* Cor ajustada para fundo claro */
             font-size: 0.9em;
         }
 
         .auth-form input {
             width: 100%;
-            padding: 18px 20px;
+            /* REDUÇÃO AQUI: Diminuído o padding vertical (altura) */
+            padding: 14px 20px; 
             border: 2px solid var(--cor-borda-input);
             border-radius: 12px;
-            background-color: #1f1f1f;
-            color: var(--cor-texto-claro);
+            background-color: #f9f9f9; /* Cor ajustada para fundo claro */
+            color: var(--cor-texto-escuro);
             font-size: 1.1em;
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
-            box-sizing: border-box; /* Adicionado para padding não aumentar a largura */
+            box-sizing: border-box;
         }
 
         .auth-form input::placeholder {
@@ -200,29 +204,42 @@
 
         .auth-form input:focus {
             outline: none;
-            border-color: var(--cor-destaque-1);
-            box-shadow: 0 0 10px rgba(0, 128, 0, 0.5);
+            border-color: var(--cor-destaque-2); /* Foco no dourado */
+            box-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
         }
+
+        /* Ícone de olho ajustado ao novo padding */
+        .toggle-password { 
+            position: absolute; 
+            right: 15px; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            color: var(--cor-placeholder); 
+            cursor: pointer; 
+            transition: color 0.3s ease;
+        }
+
 
         /* Mantendo a estrutura de erro do Arquivo 2 */
         .errorlist {
             list-style: none;
             padding: 0;
             margin: 5px 0 0 0;
-            color: #ff4444;
+            color: #dc3545; /* Vermelho padrão para erros */
             font-size: 0.9em;
             font-weight: 500;
             text-align: left;
         }
 
-        .submit-button { /* Renomeado para a classe do Arquivo 2 */
+        .submit-button { 
             width: 100%;
-            padding: 20px;
+            /* REDUÇÃO AQUI: Diminuído o padding vertical (altura) */
+            padding: 18px 20px; 
             border: none;
             border-radius: 12px;
             background: var(--cor-botao-cadastro);
-            color: var(--cor-texto-claro);
-            font-size: 1.3em;
+            color: var(--cor-texto-escuro); /* Texto escuro para botão amarelo/verde */
+            font-size: 1.2em;
             font-weight: 700;
             cursor: pointer;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -255,7 +272,7 @@
 
         .login-link a, .support-link a {
             display: block;
-            margin-top: 15px;
+            margin-top: 35px;
             color: var(--cor-destaque-2);
             text-decoration: none;
             font-weight: 600;
@@ -336,7 +353,7 @@
                 <label for="{{ form.password.id_for_label }}">Senha:</label>
                 <div style="position: relative;">
                     {{ form.password }}
-                    <i class="fas fa-eye toggle-password" id="togglePassword" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--cor-placeholder); cursor: pointer; transition: color 0.3s ease;"></i>
+                    <i class="fas fa-eye toggle-password" id="togglePassword"></i>
                 </div>
                 {# Adiciona a exibição de erros do campo password #}
                 {% if form.password.errors %}
@@ -352,7 +369,7 @@
                 <label for="{{ form.confirm_password.id_for_label }}">Confirme a Senha:</label>
                 <div style="position: relative;">
                     {{ form.confirm_password }}
-                    <i class="fas fa-eye toggle-password" id="togglePasswordConfirm" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--cor-placeholder); cursor: pointer; transition: color 0.3s ease;"></i>
+                    <i class="fas fa-eye toggle-password" id="togglePasswordConfirm"></i>
                 </div>
                 {# Adiciona a exibição de erros do campo confirm_password #}
                 {% if form.confirm_password.errors %}
@@ -415,11 +432,7 @@
                 }
             };
 
-            // Os IDs dos campos de senha do seu form Django são dinâmicos.
-            // Para garantir que funcione, assumimos que os IDs são:
-            // Senha: id_password (pode variar dependendo de como o Django renderiza)
-            // Confirmação: id_confirm_password (pode variar dependendo de como o Django renderiza)
-            // É mais seguro usar os IDs gerados pelo Django. Se o form for padrão, os IDs são:
+            // Certifica-se de que os inputs existam para pegar seus IDs dinâmicos do Django
             const passwordInput = document.querySelector('input[name="password"]');
             const confirmPasswordInput = document.querySelector('input[name="confirm_password"]');
 
