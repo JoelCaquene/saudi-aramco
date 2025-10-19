@@ -13,21 +13,22 @@ from datetime import date
 from .forms import RegisterForm, DepositForm, WithdrawalForm, BankDetailsForm
 from .models import PlatformSettings, CustomUser, Level, UserLevel, BankDetails, Deposit, Withdrawal, Task, PlatformBankDetails, Roulette, RouletteSettings
 
-# --- FUNÇÃO ATUALIZADA ---
+# --- FUNÇÕES BÁSICAS ---
+
 def home(request):
     if request.user.is_authenticated:
         return redirect('menu')
     else:
         return redirect('cadastro')
-# --- FIM DA FUNÇÃO ATUALIZADA ---
 
+# --- FUNÇÃO CORRIGIDA ---
 def menu(request):
     user_level = None
     levels = Level.objects.all().order_by('deposit_value')
     
-    # Variáveis de Configuração da Plataforma
+    # Variáveis de Configuração da Plataforma (Inicializadas para evitar erros)
     whatsapp_link = '#'
-    app_download_link = '#'  # <-- Inicializa a nova variável
+    app_download_link = '#'
 
     if request.user.is_authenticated:
         user_level = UserLevel.objects.filter(user=request.user, is_active=True).first()
@@ -36,12 +37,13 @@ def menu(request):
         platform_settings = PlatformSettings.objects.first()
         if platform_settings:
             whatsapp_link = platform_settings.whatsapp_link
-            # --- ADICIONA A LÓGICA PARA PEGAR O LINK DE DOWNLOAD DO APP ---
-            # Assume que PlatformSettings tem um campo chamado 'app_download_link'
-            app_download_link = platform_settings.app_download_link
-            # --- FIM DA LÓGICA DO APP LINK ---
+            
+            # --- CORREÇÃO DE ROBUSTEZ APLICADA AQUI ---
+            # Se o valor do banco de dados for None/vazio, usa '#' como fallback.
+            app_download_link = platform_settings.app_download_link if platform_settings.app_download_link else '#'
+            
     except (PlatformSettings.DoesNotExist, AttributeError):
-        # Caso o objeto não exista ou o campo não exista ainda
+        # Em caso de falha total ao buscar as configurações, mantém os defaults
         whatsapp_link = '#'
         app_download_link = '#'
 
@@ -50,9 +52,10 @@ def menu(request):
         'user_level': user_level,
         'levels': levels,
         'whatsapp_link': whatsapp_link,
-        'app_download_link': app_download_link, # <-- ADICIONADO AO CONTEXTO
+        'app_download_link': app_download_link,
     }
     return render(request, 'menu.html', context)
+# --- FIM DA FUNÇÃO CORRIGIDA ---
 
 def cadastro(request):
     invite_code_from_url = request.GET.get('invite', None)
@@ -79,7 +82,8 @@ def cadastro(request):
             return redirect('menu')
         else:
             try:
-                whatsapp_link = PlatformSettings.objects.first().whatsapp_link
+                platform_settings = PlatformSettings.objects.first()
+                whatsapp_link = platform_settings.whatsapp_link if platform_settings else '#'
             except (PlatformSettings.DoesNotExist, AttributeError):
                 whatsapp_link = '#'
             return render(request, 'cadastro.html', {'form': form, 'whatsapp_link': whatsapp_link})
@@ -91,7 +95,8 @@ def cadastro(request):
             form = RegisterForm()
     
     try:
-        whatsapp_link = PlatformSettings.objects.first().whatsapp_link
+        platform_settings = PlatformSettings.objects.first()
+        whatsapp_link = platform_settings.whatsapp_link if platform_settings else '#'
     except (PlatformSettings.DoesNotExist, AttributeError):
         whatsapp_link = '#'
 
@@ -109,7 +114,8 @@ def user_login(request):
         form = AuthenticationForm()
 
     try:
-        whatsapp_link = PlatformSettings.objects.first().whatsapp_link
+        platform_settings = PlatformSettings.objects.first()
+        whatsapp_link = platform_settings.whatsapp_link if platform_settings else '#'
     except (PlatformSettings.DoesNotExist, AttributeError):
         whatsapp_link = '#'
 
@@ -124,7 +130,10 @@ def user_logout(request):
 @login_required
 def deposito(request):
     platform_bank_details = PlatformBankDetails.objects.all()
-    deposit_instruction = PlatformSettings.objects.first().deposit_instruction if PlatformSettings.objects.first() else 'Instruções de depósito não disponíveis.'
+    
+    # Lógica robusta para instruções de depósito
+    platform_settings = PlatformSettings.objects.first()
+    deposit_instruction = platform_settings.deposit_instruction if platform_settings else 'Instruções de depósito não disponíveis.'
     
     # Busca todos os valores de depósito dos Níveis para a Etapa 2
     level_deposits = Level.objects.all().values_list('deposit_value', flat=True).distinct().order_by('deposit_value')
@@ -182,7 +191,8 @@ def approve_deposit(request, deposit_id):
 
 @login_required
 def saque(request):
-    withdrawal_instruction = PlatformSettings.objects.first().withdrawal_instruction if PlatformSettings.objects.first() else 'Instruções de saque não disponíveis.'
+    platform_settings = PlatformSettings.objects.first()
+    withdrawal_instruction = platform_settings.withdrawal_instruction if platform_settings else 'Instruções de saque não disponíveis.'
     
     withdrawal_records = Withdrawal.objects.filter(user=request.user).order_by('-created_at')
     
@@ -279,16 +289,21 @@ def nivel(request):
         
         if request.user.available_balance >= level_to_buy.deposit_value:
             request.user.available_balance -= level_to_buy.deposit_value
+            # Desativa níveis anteriores (opcional, dependendo da sua regra de negócio)
+            # UserLevel.objects.filter(user=request.user, is_active=True).update(is_active=False) 
+            
             UserLevel.objects.create(user=request.user, level=level_to_buy, is_active=True)
             request.user.level_active = True
             request.user.save()
             
+            # Bônus para o convidante
             invited_by_user = request.user.invited_by
             if invited_by_user and UserLevel.objects.filter(user=invited_by_user, is_active=True).exists():
                 invited_by_user.subsidy_balance += 11
                 invited_by_user.available_balance += 11
                 invited_by_user.save()
-                messages.success(request, f'Parabéns! Você recebeu 11 $ de subsídio por convite de {request.user.phone_number}.')
+                # Não é o ideal exibir a mensagem para o usuário que comprou o nível, mas mantém a lógica existente
+                # messages.success(request, f'Parabéns! Você recebeu 11 $ de subsídio por convite de {request.user.phone_number}.')
 
             messages.success(request, f'Você comprou o nível {level_to_buy.name} com sucesso!')
         else:
