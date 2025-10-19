@@ -4,19 +4,307 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro - saudi_aramco</title>
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Cadastro - SAUDI ARAMCO</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css');
+
+        :root {
+            /* Adaptação do tema SAUDI ARAMCO: Verde/Preto/Dourado (Petróleo) */
+            --cor-fundo-principal: #0a0a0a; /* Fundo preto sutil */
+            --cor-brilho: rgba(255, 255, 255, 0.05);
+            --cor-card-fundo: rgba(18, 18, 18, 0.95); /* Cartão escuro com transparência */
+            --cor-borda-input: #333333;
+            --cor-placeholder: #aaaaaa;
+            --cor-destaque-1: #008000; /* Verde escuro (corporativo) */
+            --cor-destaque-2: #ffcc00; /* Dourado/Amarelo Petróleo */
+            --cor-texto-claro: #ffffff;
+            --cor-texto-escuro: #eeeeee;
+            --cor-botao-cadastro: linear-gradient(45deg, var(--cor-destaque-1), var(--cor-destaque-2));
+            --cor-shadow-card: 0 10px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--cor-fundo-principal);
+            color: var(--cor-texto-claro);
+            position: relative;
+            overflow-x: hidden;
+            overflow-y: auto;
+            animation: fundoBrilho 10s infinite alternate;
+        }
+
+        @keyframes fundoBrilho {
+            0% {
+                background-color: #0a0a0a;
+            }
+            100% {
+                background-color: #1a1a1a;
+            }
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* Imagem de fundo adaptada para o tema SAUDI ARAMCO (energia/óleo) */
+            background-image: url("https://images.unsplash.com/photo-1544837330-22c01994e43f?q=80&w=2070&auto=format&fit=crop");
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            opacity: 0.1; /* Sutil */
+            z-index: -1;
+            filter: brightness(50%) contrast(150%); /* Dark e contrastante */
+        }
+
+        .title-platform {
+            font-size: 3.5em; /* Reduzido um pouco para caber */
+            font-weight: 700;
+            color: var(--cor-destaque-2); /* Dourado */
+            text-shadow: 0 0 20px var(--cor-destaque-2), 0 0 40px var(--cor-destaque-1);
+            letter-spacing: 5px;
+            margin-bottom: 30px;
+            position: relative;
+            text-transform: uppercase;
+            animation: piscaDourado 1s infinite alternate;
+        }
+
+        @keyframes piscaDourado {
+            0% {
+                text-shadow: 0 0 10px var(--cor-destaque-2), 0 0 20px var(--cor-destaque-1);
+            }
+            100% {
+                text-shadow: 0 0 25px var(--cor-destaque-2), 0 0 50px var(--cor-destaque-1);
+            }
+        }
+        
+        /* Efeitos de pulso de luz do Arquivo 1 - adaptado para o tema */
+        .title-platform::before, .title-platform::after {
+            content: '';
+            position: absolute;
+            background-color: transparent;
+            border-radius: 50%;
+            animation: pulsoLuz 2s infinite ease-in-out;
+            opacity: 0;
+        }
+
+        .title-platform::before {
+            width: 150px;
+            height: 150px;
+            top: 50%;
+            left: -50px;
+            transform: translateY(-50%);
+            box-shadow: 0 0 50px 30px var(--cor-destaque-2); /* Dourado */
+            animation-delay: 0s;
+        }
+
+        .title-platform::after {
+            width: 150px;
+            height: 150px;
+            top: 50%;
+            right: -50px;
+            transform: translateY(-50%);
+            box-shadow: 0 0 50px 30px var(--cor-destaque-1); /* Verde */
+            animation-delay: 1s;
+        }
+
+        @keyframes pulsoLuz {
+            0% {
+                transform: scale(0.5);
+                opacity: 0.8;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(0.5);
+                opacity: 0.8;
+            }
+        }
+
+        .content { /* Renomeado de container para 'content' para manter a estrutura do Arquivo 2 */
+            background: var(--cor-card-fundo);
+            backdrop-filter: blur(8px);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: var(--cor-shadow-card);
+            border: 1px solid #333;
+            position: relative;
+            z-index: 1;
+            animation: fadeIn 1.2s ease-out 0.5s backwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-size: 2.2em;
+            color: var(--cor-texto-claro);
+            font-weight: 700;
+        }
+        
+        /* Estilizando os grupos de formulário */
+        .form-group {
+            position: relative;
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--cor-destaque-2);
+            font-size: 0.9em;
+        }
+
+        .auth-form input {
+            width: 100%;
+            padding: 18px 20px;
+            border: 2px solid var(--cor-borda-input);
+            border-radius: 12px;
+            background-color: #1f1f1f;
+            color: var(--cor-texto-claro);
+            font-size: 1.1em;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            box-sizing: border-box; /* Adicionado para padding não aumentar a largura */
+        }
+
+        .auth-form input::placeholder {
+            color: var(--cor-placeholder);
+        }
+
+        .auth-form input:focus {
+            outline: none;
+            border-color: var(--cor-destaque-1);
+            box-shadow: 0 0 10px rgba(0, 128, 0, 0.5);
+        }
+
+        /* Mantendo a estrutura de erro do Arquivo 2 */
+        .errorlist {
+            list-style: none;
+            padding: 0;
+            margin: 5px 0 0 0;
+            color: #ff4444;
+            font-size: 0.9em;
+            font-weight: 500;
+            text-align: left;
+        }
+
+        .submit-button { /* Renomeado para a classe do Arquivo 2 */
+            width: 100%;
+            padding: 20px;
+            border: none;
+            border-radius: 12px;
+            background: var(--cor-botao-cadastro);
+            color: var(--cor-texto-claro);
+            font-size: 1.3em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 8px 25px rgba(0, 128, 0, 0.4);
+            animation: pulsoBotaoPetroleo 1.8s infinite;
+            margin-top: 15px;
+        }
+
+        @keyframes pulsoBotaoPetroleo {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 8px 25px rgba(0, 128, 0, 0.4);
+            }
+            50% {
+                transform: scale(1.02);
+                box-shadow: 0 12px 35px rgba(255, 204, 0, 0.6);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 8px 25px rgba(0, 128, 0, 0.4);
+            }
+        }
+
+        .submit-button:hover {
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: 0 10px 30px rgba(255, 204, 0, 0.6);
+        }
+
+        .login-link a, .support-link a {
+            display: block;
+            margin-top: 15px;
+            color: var(--cor-destaque-2);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease, text-shadow 0.3s ease;
+            font-size: 1.1em;
+        }
+
+        .login-link a:hover, .support-link a:hover {
+            color: var(--cor-destaque-1);
+            text-shadow: 0 0 10px var(--cor-destaque-1);
+        }
+
+        /* Efeitos de partículas de energia/óleo */
+        .energia-particula {
+            position: fixed;
+            background-color: var(--cor-destaque-2);
+            border-radius: 50%;
+            box-shadow: 0 0 5px var(--cor-destaque-2);
+            animation: moveParticula 15s infinite linear, fadeParticula 5s infinite alternate;
+            opacity: 0;
+            z-index: 0;
+        }
+
+        @keyframes moveParticula {
+            0% {
+                transform: translate(calc(var(--rand-x) * 100vw), calc(var(--rand-y) * 100vh));
+            }
+            100% {
+                transform: translate(calc(var(--rand-x-end) * 100vw), calc(var(--rand-y-end) * 100vh));
+            }
+        }
+
+        @keyframes fadeParticula {
+            0%, 100% {
+                opacity: 0;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="background-image-container">
-        <img src="{% static 'images/background_cadastro.jpg' %}" alt="Background" class="background-image">
-        <div class="overlay"></div>
-    </div>
+    <div class="title-platform">SAUDI ARAMCO</div>
     <div class="content">
         <div class="header">
             <h2>Crie sua conta</h2>
         </div>
+        
         <form method="post" class="auth-form">
             {% csrf_token %}
             
@@ -31,7 +319,9 @@
 
             <div class="form-group">
                 <label for="{{ form.phone_number.id_for_label }}">Número de Telefone:</label>
-                {{ form.phone_number }}
+                <div style="position: relative;">
+                    {{ form.phone_number }}
+                </div>
                 {# Adiciona a exibição de erros do campo phone_number #}
                 {% if form.phone_number.errors %}
                     <ul class="errorlist">
@@ -44,7 +334,10 @@
             
             <div class="form-group">
                 <label for="{{ form.password.id_for_label }}">Senha:</label>
-                {{ form.password }}
+                <div style="position: relative;">
+                    {{ form.password }}
+                    <i class="fas fa-eye toggle-password" id="togglePassword" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--cor-placeholder); cursor: pointer; transition: color 0.3s ease;"></i>
+                </div>
                 {# Adiciona a exibição de erros do campo password #}
                 {% if form.password.errors %}
                     <ul class="errorlist">
@@ -57,7 +350,10 @@
             
             <div class="form-group">
                 <label for="{{ form.confirm_password.id_for_label }}">Confirme a Senha:</label>
-                {{ form.confirm_password }}
+                <div style="position: relative;">
+                    {{ form.confirm_password }}
+                    <i class="fas fa-eye toggle-password" id="togglePasswordConfirm" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--cor-placeholder); cursor: pointer; transition: color 0.3s ease;"></i>
+                </div>
                 {# Adiciona a exibição de erros do campo confirm_password #}
                 {% if form.confirm_password.errors %}
                     <ul class="errorlist">
@@ -70,7 +366,9 @@
             
             <div class="form-group">
                 <label for="{{ form.invited_by_code.id_for_label }}">Código de Convite:</label>
-                {{ form.invited_by_code }}
+                <div style="position: relative;">
+                    {{ form.invited_by_code }}
+                </div>
                 {# Adiciona a exibição de erros do campo invited_by_code #}
                 {% if form.invited_by_code.errors %}
                     <ul class="errorlist">
@@ -83,6 +381,7 @@
             
             <button type="submit" class="submit-button">Cadastrar</button>
         </form>
+
         <div class="support-link">
             {% if whatsapp_link %}
                 <a href="{{ whatsapp_link }}" target="_blank">
@@ -98,5 +397,59 @@
             <a href="{% url 'login' %}">Já tem conta? Faça o login</a>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Lógica do botão de alternar senha (implementação do Arquivo 1)
+            const setupPasswordToggle = (toggleId, inputId) => {
+                const toggle = document.querySelector(`#${toggleId}`);
+                const input = document.querySelector(`#${inputId}`);
+                
+                if (toggle && input) {
+                    toggle.addEventListener('click', function (e) {
+                        const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+                        input.setAttribute('type', type);
+                        this.classList.toggle('fa-eye');
+                        this.classList.toggle('fa-eye-slash');
+                    });
+                }
+            };
+
+            // Os IDs dos campos de senha do seu form Django são dinâmicos.
+            // Para garantir que funcione, assumimos que os IDs são:
+            // Senha: id_password (pode variar dependendo de como o Django renderiza)
+            // Confirmação: id_confirm_password (pode variar dependendo de como o Django renderiza)
+            // É mais seguro usar os IDs gerados pelo Django. Se o form for padrão, os IDs são:
+            const passwordInput = document.querySelector('input[name="password"]');
+            const confirmPasswordInput = document.querySelector('input[name="confirm_password"]');
+
+            if(passwordInput) setupPasswordToggle('togglePassword', passwordInput.id);
+            if(confirmPasswordInput) setupPasswordToggle('togglePasswordConfirm', confirmPasswordInput.id);
+
+            // Código para criar as partículas de energia/óleo
+            const numParticulas = 30;
+            const body = document.body;
+
+            for (let i = 0; i < numParticulas; i++) {
+                const particula = document.createElement('div');
+                particula.classList.add('energia-particula');
+                
+                const size = Math.random() * 8 + 3;
+                particula.style.width = `${size}px`;
+                particula.style.height = `${size}px`;
+                particula.style.backgroundColor = i % 2 === 0 ? 'var(--cor-destaque-1)' : 'var(--cor-destaque-2)';
+
+                const delay = Math.random() * 10;
+                particula.style.animationDelay = `${delay}s`;
+
+                particula.style.setProperty('--rand-x', Math.random() * 2 - 0.5);
+                particula.style.setProperty('--rand-y', Math.random() * 2 - 0.5);
+                particula.style.setProperty('--rand-x-end', Math.random() * 2 - 0.5);
+                particula.style.setProperty('--rand-y-end', Math.random() * 2 - 0.5);
+
+                body.appendChild(particula);
+            }
+        });
+    </script>
 </body>
 </html>
