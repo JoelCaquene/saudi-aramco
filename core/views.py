@@ -271,10 +271,10 @@ def nivel(request):
             
             invited_by_user = request.user.invited_by
             if invited_by_user and UserLevel.objects.filter(user=invited_by_user, is_active=True).exists():
-                invited_by_user.subsidy_balance += 1000
-                invited_by_user.available_balance += 1000
+                invited_by_user.subsidy_balance += 11
+                invited_by_user.available_balance += 11
                 invited_by_user.save()
-                messages.success(request, f'Parabéns! Você recebeu 1000 $ de subsídio por convite de {request.user.phone_number}.')
+                messages.success(request, f'Parabéns! Você recebeu 11 $ de subsídio por convite de {request.user.phone_number}.')
 
             messages.success(request, f'Você comprou o nível {level_to_buy.name} com sucesso!')
         else:
