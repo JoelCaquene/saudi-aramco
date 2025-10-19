@@ -157,6 +157,27 @@ class Level(models.Model):
     def __str__(self):
         return self.name
 
+    # --- FUNÇÃO MOVIDA/ADICIONADA AQUI ---
+    @property
+    def level_class_info(self):
+        """
+        Retorna a classe (A, B, C) e a taxa de subsídio com base no ID do nível.
+        Regras:
+        - Nível 1-3 -> Classe A (3%)
+        - Nível 4-6 -> Classe B (5%)
+        - Nível 7+ -> Classe C (7%)
+        Retorna uma tupla: (class_name, subsidy_rate)
+        """
+        level_id = self.id
+        if 1 <= level_id <= 3:
+            return 'A', 0.03
+        elif 4 <= level_id <= 6:
+            return 'B', 0.05
+        elif level_id >= 7:
+            return 'C', 0.07
+        return 'N/A', 0.0
+    # --- FIM DA FUNÇÃO MOVIDA/ADICIONADA AQUI ---
+
 # ---
 
 class UserLevel(models.Model):

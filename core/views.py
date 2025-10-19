@@ -10,26 +10,16 @@ from django.views.decorators.http import require_POST
 import random
 from datetime import date
 
+# Importa o Model Level para acessar a nova propriedade level_class_info
 from .forms import RegisterForm, DepositForm, WithdrawalForm, BankDetailsForm
 from .models import PlatformSettings, CustomUser, Level, UserLevel, BankDetails, Deposit, Withdrawal, Task, PlatformBankDetails, Roulette, RouletteSettings
 
-# --- FUNÇÃO AUXILIAR PARA DEFINIR CLASSE E TAXA DE SUBSÍDIO ---
-def get_level_class_info(level_id):
-    """
-    Retorna a classe (A, B, C) e a taxa de subsídio com base no ID do nível.
-    Regras:
-    - Nível 1-3 -> Classe A (3%)
-    - Nível 4-6 -> Classe B (5%)
-    - Nível 7+ -> Classe C (7%)
-    """
-    if 1 <= level_id <= 3:
-        return 'A', 0.03
-    elif 4 <= level_id <= 6:
-        return 'B', 0.05
-    elif level_id >= 7:
-        return 'C', 0.07
-    return 'N/A', 0.0
-# --- FIM DA FUNÇÃO AUXILIAR ---
+
+# --- FUNÇÃO AUXILIAR REMOVIDA: A lógica foi movida para Level.level_class_info no models.py ---
+# A função abaixo foi removida:
+# def get_level_class_info(level_id):
+#     ...
+# --- FIM DA FUNÇÃO AUXILIAR REMOVIDA ---
 
 
 # --- FUNÇÃO ATUALIZADA ---
@@ -270,9 +260,8 @@ def process_task(request):
     # 2. Lógica do Subsídio para o Patrocinador (Equipa)
     invited_by_user = user.invited_by
     if invited_by_user:
-        # Pega as informações de classe do nível do subordinado
-        level_id = active_level.level.id
-        level_class, subsidy_rate = get_level_class_info(level_id)
+        # Pega as informações de classe do nível do subordinado USANDO O MODEL
+        level_class, subsidy_rate = active_level.level.level_class_info # <--- ALTERAÇÃO AQUI
         
         if subsidy_rate > 0:
             # O subsídio é calculado sobre o ganho diário (earnings)
@@ -331,7 +320,7 @@ def equipa(request):
     team_members = CustomUser.objects.filter(invited_by=request.user).order_by('-date_joined')
     team_count = team_members.count()
     
-    # Filtros de Classe (Dicionários para facilitar a filtragem no template)
+    # Listas para membros por classe
     class_a_members = []
     class_b_members = []
     class_c_members = []
@@ -342,24 +331,32 @@ def equipa(request):
         # Obtém o nível ativo para o membro
         active_level = UserLevel.objects.filter(user=member, is_active=True).first()
         
+        # Obtém a última tarefa (pode ser None)
         last_task = Task.objects.filter(user=member).order_by('-completed_at').first()
 
         member_data = {
             'phone_number': member.phone_number,
             'date_joined': member.date_joined,
             'is_active': member.level_active,
-            'level_name': active_level.level.name if active_level else 'N/A',
-            'level_id': active_level.level.id if active_level else 0,
-            'class_name': 'N/A',
-            'subsidy_rate': 0.0,
+            'level_name': 'N/A',  # Padrão
+            'level_id': 0,        # Padrão
+            'class_name': 'N/A',  # Padrão
+            'subsidy_rate': 0.0,  # Padrão
             'last_task_time': last_task.completed_at if last_task else None
         }
         
+        # === CORREÇÃO DE ERRO 500 E USO DO MODEL REATORFADO ===
         if active_level:
-            class_name, subsidy_rate = get_level_class_info(active_level.level.id)
+            # Não precisamos mais chamar a função auxiliar, usamos a propriedade do Level
+            class_name, subsidy_rate = active_level.level.level_class_info # <--- ALTERAÇÃO AQUI
+            
+            # Atualiza os dados do membro
+            member_data['level_name'] = active_level.level.name
+            member_data['level_id'] = active_level.level.id
             member_data['class_name'] = class_name
             member_data['subsidy_rate'] = subsidy_rate
             
+            # Adiciona o membro à lista da sua classe
             if class_name == 'A':
                 class_a_members.append(member_data)
             elif class_name == 'B':
