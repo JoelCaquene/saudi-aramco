@@ -1,94 +1,182 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Nível{% endblock %}
+{% block title %}Níveis de Investimento - Plataforma{% endblock %}
 
 {% block content %}
-<div class="page-header">
-    <h1>Níveis de Investimento</h1>
-</div>
-<div class="level-list">
-    {% for level in levels %}
-    <div class="level-item">
-        <img src="{% if level.image %}{{ level.image.url }}{% else %}{% static 'path/to/default/image.png' %}{% endif %}" alt="{{ level.name }}">
-        <div class="level-info">
-            <h3>{{ level.name }}</h3>
-            <p>Depósito: $ {{ level.deposit_value }}</p>
-            <p>Ganho Diário: $ {{ level.daily_gain }}</p>
-            <p>Ganho Mensal: $ {{ level.monthly_gain }}</p>
-            <p>Ciclo: {{ level.cycle_days }} dias</p>
-        </div>
-        {% if level.id in user_levels %}
-            <span class="active-level">Nível Ativo</span>
-        {% else %}
-            <form method="post" action="{% url 'nivel' %}">
-                {% csrf_token %}
-                <input type="hidden" name="level_id" value="{{ level.id }}">
-                <button type="submit" class="buy-button">Comprar</button>
-            </form>
-        {% endif %}
+<div class="container my-5">
+    <div class="page-header">
+        <h1>✨ Níveis de Investimento ✨</h1>
     </div>
-    {% endfor %}
+    
+    <div class="level-list row justify-content-center">
+        {% for level in levels %}
+        <div class="col-6 mb-4">
+            <div class="level-item {% if level.id in user_levels %}active-border{% endif %}">
+                
+                <div class="level-icon">
+                    <i class="fas fa-trophy" style="color: {% cycle '#FFD700' '#C0C0C0' '#CD7F32' '#1E90FF' '#4CAF50' '#FF6347' as icon_colors %}"></i>
+                </div>
+                
+                <div class="level-info">
+                    <h3 class="level-title">{{ level.name }}</h3>
+                    
+                    <div class="level-details">
+                        <p><i class="fas fa-wallet detail-icon"></i> Depósito: <strong class="value-text deposit-value">$ {{ level.deposit_value }}</strong></p>
+                        <p><i class="fas fa-money-bill-wave detail-icon"></i> Ganho Diário: <strong class="value-text daily-gain">$ {{ level.daily_gain }}</strong></p>
+                        <p><i class="fas fa-chart-line detail-icon"></i> Ganho Mensal: <strong class="value-text monthly-gain">$ {{ level.monthly_gain }}</strong></p>
+                        <p><i class="fas fa-calendar-alt detail-icon"></i> Ciclo: <strong class="value-text cycle-days">{{ level.cycle_days }} dias</strong></p>
+                    </div>
+                </div>
+                
+                {% if level.id in user_levels %}
+                    <span class="active-level pulse-effect">Nível Ativo</span>
+                {% else %}
+                    <form method="post" action="{% url 'nivel' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="level_id" value="{{ level.id }}">
+                        <button type="submit" class="buy-button hover-effect">Comprar</button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
 </div>
 
 <style>
+    /* Cores e Fundo */
+    :root {
+        --dark-blue: #0A1931; 
+        --light-blue: #185E8B; 
+        --green-accent: #4CAF50; 
+        --active-color: #00BCD4; 
+        --text-light: #F0F0F0;
+        --text-muted: #B0B0B0;
+    }
+
+    body {
+        background-color: #050E1A; 
+    }
+
+    /* Cabeçalho */
     .page-header {
         text-align: center;
-        padding: 20px 0;
-        background-color: #00004d;
-        border-bottom: 2px solid #4CAF50;
-        margin-bottom: 20px;
+        padding: 30px 0;
+        background: linear-gradient(135deg, var(--dark-blue) 0%, var(--light-blue) 100%);
+        border-radius: 15px;
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4);
+        margin-bottom: 40px;
     }
     .page-header h1 {
-        color: #4CAF50;
+        color: var(--green-accent);
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
     }
-    .level-list {
-        display: grid;
-        gap: 20px;
-        padding: 20px;
-    }
+
+    /* OTIMIZAÇÃO PARA TELAS PEQUENAS (MOBILE) */
     .level-item {
-        background-color: #00004d;
-        padding: 15px;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+        background: var(--dark-blue);
+        padding: 15px; /* Reduz o padding para economizar espaço */
+        border-radius: 12px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
         text-align: center;
+        transition: transform 0.4s ease, box-shadow 0.4s ease, border 0.4s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        border: 2px solid transparent; 
     }
-    .level-item img {
-        width: 100%;
-        height: 150px;
-        object-fit: cover;
-        border-radius: 8px;
+
+    .level-item:hover {
+        transform: translateY(-5px) scale(1.02); /* Ajustado o hover para ser mais sutil */
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.8), 0 0 10px var(--light-blue);
+    }
+
+    .active-border {
+        border-color: var(--active-color) !important;
+    }
+
+    /* Ícone */
+    .level-icon {
+        font-size: 2.5rem; /* Reduzido o tamanho do ícone */
         margin-bottom: 10px;
+        height: 40px; 
     }
-    .level-info h3 {
-        color: #87CEEB;
-        margin-bottom: 5px;
+    
+    /* Título do Nível */
+    .level-title {
+        color: var(--active-color);
+        font-weight: 600;
+        margin-bottom: 10px;
+        font-size: 1.4rem; /* Reduzido o tamanho do título */
+        text-transform: uppercase;
     }
-    .level-info p {
-        margin: 0;
-        color: #fff;
+
+    /* Detalhes */
+    .level-details {
+        text-align: left;
+        padding: 0 5px; /* Reduzido o padding */
+        font-size: 0.85rem; /* Reduzido o tamanho do texto dos detalhes */
     }
+    .level-details p {
+        margin: 5px 0;
+    }
+
+    .detail-icon {
+        color: var(--green-accent);
+        margin-right: 5px;
+        width: 15px;
+    }
+
+    /* Botões e Status */
     .buy-button, .active-level {
         width: 100%;
-        padding: 10px;
+        padding: 8px; /* Reduzido o padding do botão */
         margin-top: 15px;
-        border-radius: 5px;
-        font-size: 1rem;
-        font-weight: bold;
-        color: #fff;
-        cursor: pointer;
-        border: none;
+        border-radius: 6px;
+        font-size: 0.9rem; /* Reduzido o tamanho da fonte do botão */
     }
+
     .buy-button {
-        background-color: #4CAF50;
-        transition: background-color 0.3s;
+        background-color: var(--green-accent);
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+        color: white;
     }
-    .buy-button:hover {
+
+    .buy-button.hover-effect:hover {
         background-color: #388e3c;
     }
+
     .active-level {
-        background-color: #87CEEB;
+        background-color: var(--active-color);
+        color: var(--dark-blue);
+        animation: pulse 1.5s infinite; 
+    }
+    
+    /* Keyframes para o efeito de pulsação */
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.02); } /* Pulsação mais suave no mobile */
+        100% { transform: scale(1); }
+    }
+
+    /* A classe 'col-6' do Bootstrap garante 50% de largura em todas as telas (xs, sm, md, lg) */
+    /* Caso você não esteja usando Bootstrap, adicione o CSS abaixo para garantir 50% de largura */
+    /*
+    @media (max-width: 767px) {
+        .level-list > div {
+            flex: 0 0 50%;
+            max-width: 50%;
+        }
+    }
+    */
+
+    .container {
+        max-width: 1200px;
+        padding: 0 5px; /* Reduz o padding lateral do container no mobile */
     }
 </style>
 {% endblock %}
