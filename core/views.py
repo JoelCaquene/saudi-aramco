@@ -10,10 +10,8 @@ from django.views.decorators.http import require_POST
 import random
 from datetime import date
 
-# Importa o Model Level para acessar a nova propriedade level_class_info
 from .forms import RegisterForm, DepositForm, WithdrawalForm, BankDetailsForm
 from .models import PlatformSettings, CustomUser, Level, UserLevel, BankDetails, Deposit, Withdrawal, Task, PlatformBankDetails, Roulette, RouletteSettings
-
 
 # --- FUNÇÃO ATUALIZADA ---
 def home(request):
@@ -62,7 +60,7 @@ def cadastro(request):
                 except CustomUser.DoesNotExist:
                     messages.error(request, 'Código de convite inválido.')
                     return render(request, 'cadastro.html', {'form': form})
-                
+            
             user.save()
             login(request, user)
             return redirect('menu')
@@ -245,27 +243,10 @@ def process_task(request):
     if tasks_completed_today >= max_tasks:
         return JsonResponse({'success': False, 'message': 'Você já concluiu todas as tarefas diárias.'})
 
-    # 1. Ganho do próprio usuário
     earnings = active_level.level.daily_gain
     Task.objects.create(user=user, earnings=earnings)
     user.available_balance += earnings
-    
-    # 2. Lógica do Subsídio para o Patrocinador (Equipa)
-    invited_by_user = user.invited_by
-    if invited_by_user:
-        # Pega as informações de classe do nível do subordinado USANDO O MODEL
-        class_name, subsidy_rate = active_level.level.level_class_info # <--- USO DO MODEL REATORFADO
-        
-        if subsidy_rate > 0:
-            # O subsídio é calculado sobre o ganho diário (earnings)
-            subsidy_amount = earnings * subsidy_rate
-            
-            # Credita o subsídio ao patrocinador (invited_by_user)
-            invited_by_user.subsidy_balance += subsidy_amount
-            invited_by_user.available_balance += subsidy_amount # Adiciona também ao saldo disponível
-            invited_by_user.save()
-
-    user.save() # Salva o usuário após creditar o ganho e o subsídio (se houver)
+    user.save()
 
     return JsonResponse({'success': True, 'daily_gain': earnings})
 
@@ -288,7 +269,6 @@ def nivel(request):
             request.user.level_active = True
             request.user.save()
             
-            # Lógica de bônus por convite de 1000$ (Se o convidante tem um nível ativo)
             invited_by_user = request.user.invited_by
             if invited_by_user and UserLevel.objects.filter(user=invited_by_user, is_active=True).exists():
                 invited_by_user.subsidy_balance += 1000
@@ -310,69 +290,12 @@ def nivel(request):
 
 @login_required
 def equipa(request):
-    # Obtém membros diretos
-    # Adicionamos select_related('invited_by') para evitar consultas N+1
     team_members = CustomUser.objects.filter(invited_by=request.user).order_by('-date_joined')
     team_count = team_members.count()
     
-    # Listas para membros por classe
-    class_a_members = []
-    class_b_members = []
-    class_c_members = []
-    members_with_class = [] # Lista para todos os membros com dados enriquecidos
-    
-    # Processa cada membro para determinar sua classe e obter dados de tarefa
-    for member in team_members:
-        # Obtém o nível ativo para o membro.
-        # É importante usar select_related('level') aqui para otimizar o acesso a active_level.level.level_class_info
-        active_level = UserLevel.objects.filter(user=member, is_active=True).select_related('level').first()
-        
-        # Obtém a última tarefa (pode ser None)
-        last_task = Task.objects.filter(user=member).order_by('-completed_at').first()
-
-        member_data = {
-            'phone_number': member.phone_number,
-            'date_joined': member.date_joined,
-            'is_active': member.level_active,
-            'level_name': 'N/A', 
-            'level_id': 0, 
-            'class_name': 'N/A', 
-            'subsidy_rate': 0.0, 
-            'last_task_time': last_task.completed_at if last_task else None
-        }
-        
-        # === CORREÇÃO DE ERRO 500 E USO DO MODEL REATORFADO (VERIFICAÇÃO ROBUSTA) ===
-        # O erro 500 acontece quando tentamos acessar active_level.level em um objeto None
-        if active_level and active_level.level:
-            # Não precisamos mais chamar a função auxiliar, usamos a propriedade do Level
-            class_name, subsidy_rate = active_level.level.level_class_info 
-            
-            # Atualiza os dados do membro
-            member_data['level_name'] = active_level.level.name
-            member_data['level_id'] = active_level.level.id
-            member_data['class_name'] = class_name
-            member_data['subsidy_rate'] = subsidy_rate
-            
-            # Adiciona o membro à lista da sua classe
-            if class_name == 'A':
-                class_a_members.append(member_data)
-            elif class_name == 'B':
-                class_b_members.append(member_data)
-            elif class_name == 'C':
-                class_c_members.append(member_data)
-        
-        members_with_class.append(member_data) # Adiciona todos para a lista geral
-    
-    
     context = {
-        'team_members': members_with_class, # Contém todos os membros com dados de classe/tarefa
+        'team_members': team_members,
         'team_count': team_count,
-        'class_a_members': class_a_members,
-        'class_b_members': class_b_members,
-        'class_c_members': class_c_members,
-        'total_class_a': len(class_a_members),
-        'total_class_b': len(class_b_members),
-        'total_class_c': len(class_c_members),
         'invite_link': request.build_absolute_uri(reverse('cadastro')) + f'?invite={request.user.invite_code}',
     }
     return render(request, 'equipa.html', context)
@@ -486,7 +409,6 @@ def renda(request):
     # A linha abaixo foi alterada para corrigir o status para 'Aprovado'
     total_withdrawals = Withdrawal.objects.filter(user=user, status='Aprovado').aggregate(Sum('amount'))['amount__sum'] or 0
 
-    # O total_income já inclui user.subsidy_balance, onde os subsídios da equipa são creditados.
     total_income = (Task.objects.filter(user=user).aggregate(Sum('earnings'))['earnings__sum'] or 0) + user.subsidy_balance
     
     context = {
