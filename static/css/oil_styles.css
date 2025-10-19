@@ -1,0 +1,197 @@
+/* oil_styles.css */
+
+:root {
+    --bg-dark: #0a0a0a; /* Fundo muito escuro, quase preto do petróleo */
+    --primary-color: #00ff88; /* Verde Neon/Refinado para destaque (brilho) */
+    --secondary-color: #2c3e50; /* Cinza metálico/azulado para campos */
+    --text-light: #f5f5f5; /* Texto claro */
+    --error-color: #e74c3c; /* Vermelho para erros */
+}
+
+/* Base Global */
+body {
+    font-family: 'Arial', sans-serif;
+    color: var(--text-light);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--bg-dark); /* Fundo padrão caso a imagem falhe */
+    overflow-y: auto; /* Permite scroll em telas pequenas */
+}
+
+/* Background e Overlay */
+.background-image-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+}
+
+.background-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.4) contrast(1.2); /* Escurece e aumenta o contraste para parecer "óleo" */
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6); /* Overlay escuro adicional */
+    z-index: -1;
+}
+
+/* Content Container (o formulário em si) */
+.content {
+    background: rgba(17, 17, 17, 0.95); /* Fundo semi-transparente escuro para o conteúdo */
+    padding: 40px 30px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.2); /* Sombra suave para destacar o brilho */
+    width: 90%;
+    max-width: 400px;
+    backdrop-filter: blur(2px); /* Efeito de vidro fosco */
+    border: 1px solid var(--primary-color); /* Borda fina para o tema */
+}
+
+/* Título e Header */
+.header h2 {
+    color: var(--text-light);
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 1.8em;
+}
+
+/* Formulário e Grupos */
+.auth-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-light);
+}
+
+/* Campos de Input */
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #444;
+    border-radius: 6px;
+    background-color: var(--secondary-color); /* Fundo metálico/escuro */
+    color: var(--text-light);
+    font-size: 16px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    box-sizing: border-box; /* Inclui padding e border no width total */
+}
+
+.form-group input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 8px rgba(0, 255, 136, 0.5); /* Brilho no foco */
+    outline: none;
+    background-color: #34495e;
+}
+
+/* Estilo para a Envoltória da Senha (com ícone) */
+.password-input-wrapper {
+    position: relative;
+}
+
+.password-input-wrapper input {
+    padding-right: 40px; /* Espaço para o ícone */
+}
+
+.password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #95a5a6; /* Cor do ícone */
+    transition: color 0.2s;
+}
+
+.password-toggle:hover {
+    color: var(--primary-color);
+}
+
+/* Botão de Cadastro (Submit) */
+.submit-button {
+    padding: 12px;
+    background-color: var(--primary-color); /* Cor principal forte */
+    color: var(--bg-dark);
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.1em;
+    margin-top: 10px;
+    transition: background-color 0.3s, transform 0.1s, box-shadow 0.3s;
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+.submit-button:hover {
+    background-color: #00cc66; /* Tom ligeiramente mais escuro no hover */
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(0, 255, 136, 0.4);
+}
+
+/* Links de Suporte e Login */
+.support-link, .login-link {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.95em;
+}
+
+.support-link a, .login-link a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.3s, text-shadow 0.3s;
+}
+
+.support-link a:hover, .login-link a:hover {
+    color: #ffffff;
+    text-shadow: 0 0 5px var(--primary-color);
+}
+
+.support-link i {
+    margin-right: 8px;
+}
+
+/* Erros do Django */
+.errorlist {
+    color: var(--error-color);
+    list-style: none;
+    padding: 5px 0 10px 0;
+    margin: 0;
+    font-size: 0.9em;
+}
+
+/* Mensagens do Django (opcional, para 'messages' frameworks) */
+.django-message {
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    text-align: center;
+}
+
+.django-message.error {
+    background-color: rgba(231, 76, 60, 0.2);
+    border: 1px solid var(--error-color);
+    color: var(--error-color);
+}
